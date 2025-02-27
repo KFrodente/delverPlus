@@ -59,6 +59,7 @@ public class Options {
     public int key_turn_left = Keys.LEFT;
     public int key_turn_right = Keys.RIGHT;
     public int key_jump = Keys.SPACE;
+    public int key_sprint = Keys.SHIFT_LEFT;
 
     public GamepadBinding gamepad_use = null;
     public GamepadBinding gamepad_attack = null;
@@ -129,6 +130,7 @@ public class Options {
         Actions.keyBindings.put(Action.TURN_LEFT, Options.instance.key_turn_left);
         Actions.keyBindings.put(Action.TURN_RIGHT, Options.instance.key_turn_right);
         Actions.keyBindings.put(Action.JUMP, Options.instance.key_jump);
+        Actions.keyBindings.put(Action.SPRINT, Options.instance.key_sprint);
     }
 
     public static void SetGamepadBindings(GamepadDefinition defaultGamepad) {

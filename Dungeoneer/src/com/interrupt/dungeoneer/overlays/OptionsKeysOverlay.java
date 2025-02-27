@@ -210,6 +210,7 @@ public class OptionsKeysOverlay extends WindowOverlay {
         Options.instance.key_turn_left = getKeyBinding(Actions.Action.TURN_LEFT);
         Options.instance.key_turn_right = getKeyBinding(Actions.Action.TURN_RIGHT);
         Options.instance.key_jump = getKeyBinding(Actions.Action.JUMP);
+        Options.instance.key_sprint = getKeyBinding(Actions.Action.SPRINT);
 
         Options.saveOptions();
         OverlayManager.instance.replaceCurrent(new OptionsInputOverlay(dimScreen, showBackground));
