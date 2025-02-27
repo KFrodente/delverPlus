@@ -42,6 +42,7 @@ import com.interrupt.dungeoneer.tiles.Tile;
 import com.interrupt.helpers.PlayerHistory;
 import com.interrupt.managers.HUDManager;
 import com.interrupt.managers.StringManager;
+import org.graalvm.compiler.replacements.Log;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -829,6 +830,7 @@ public class Player extends Actor {
             turnDown = input.isLookDownPressed();
             attack = input.isAttackPressed() || controllerState.attack;
             jump = input.isJumpPressed();
+            if (jump) System.out.println("yippee!");
         }
 
 		// Update player visibility
@@ -1045,6 +1047,7 @@ public class Player extends Actor {
 		rotya *= 0.8;
 
 		if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
+            System.out.print("I MADE IT!!!");
 			za += jumpHeight;
 		}
 
