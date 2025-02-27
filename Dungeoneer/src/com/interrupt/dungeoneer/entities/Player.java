@@ -122,6 +122,9 @@ public class Player extends Actor {
 	private float stepHeight = 0.35f;
 	private float lastZ;
 
+    private float sprintBurstSpeedMult = 15;
+    private float sprintHeldSpeedMult = 1.75f;
+
 	public boolean isHoldingOrb = false;
 
 	public int levelNum = 0;
@@ -833,8 +836,8 @@ public class Player extends Actor {
             sprintHeld = input.isSprintHeld();
         }
 
-        if (sprint) walkSpeed *= 15;
-        if (sprintHeld) walkSpeed *= 1.5f;
+        if (sprint) walkSpeed *= sprintBurstSpeedMult;
+        if (sprintHeld) walkSpeed *= sprintHeldSpeedMult;
 
 		// Update player visibility
 		Color lightColor = level.getLightColorAt(x, y, z, null, t_vislightColor);
