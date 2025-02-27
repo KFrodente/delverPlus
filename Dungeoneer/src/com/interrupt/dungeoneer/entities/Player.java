@@ -806,7 +806,7 @@ public class Player extends Actor {
 
 		// reset movement speed
 		walkVel = 0.05f;
-		walkSpeed = getWalkSpeed();
+		walkSpeed = getWalkSpeed(input);
 		rotSpeed = 0.009f;
 		maxRot = 0.06f;
 
@@ -816,7 +816,7 @@ public class Player extends Actor {
 			else if(rot < 0) rot = rot % 6.28318531f;
 		}
 
-		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false;
+		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false;
 
         if(!isDead && !isInOverlay) {
             up = input.isMoveForwardPressed();
@@ -829,7 +829,12 @@ public class Player extends Actor {
             turnDown = input.isLookDownPressed();
             attack = input.isAttackPressed() || controllerState.attack;
             jump = input.isJumpPressed();
+            sprint = input.isSprintPressed();
+            sprintHeld = input.isSprintHeld();
         }
+
+        if (sprint) walkSpeed *= 15;
+        if (sprintHeld) walkSpeed *= 1.5f;
 
 		// Update player visibility
 		Color lightColor = level.getLightColorAt(x, y, z, null, t_vislightColor);
@@ -2090,7 +2095,7 @@ public class Player extends Actor {
 		}*/
 	}
 
-	public float getWalkSpeed() {
+	public float getWalkSpeed(GameInput input) {
 		float baseSpeed = 0.10f + stats.SPD * 0.015f;
 		if(statusEffects == null || statusEffects.size <= 0) return baseSpeed * GetEquippedSpeedMod();
 
