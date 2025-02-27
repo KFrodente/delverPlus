@@ -43,7 +43,7 @@ public class Options {
     public boolean alwaysShowCrosshair = false;
 
     public int key_use = Keys.E;
-    public int key_attack = Keys.SPACE;
+    public int key_attack = -1;
     public int key_forward = Keys.W;
     public int key_backward = Keys.S;
     public int key_strafe_left = Keys.A;
@@ -58,7 +58,7 @@ public class Options {
     public int key_look_down = Keys.DOWN;
     public int key_turn_left = Keys.LEFT;
     public int key_turn_right = Keys.RIGHT;
-    public int key_jump = -1;
+    public int key_jump = Keys.SPACE;
 
     public GamepadBinding gamepad_use = null;
     public GamepadBinding gamepad_attack = null;
