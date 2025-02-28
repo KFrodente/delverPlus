@@ -246,6 +246,8 @@ public class Player extends Actor {
 		isSolid = true;
 		collision.set(0.2f,0.2f,0.65f);
 		dropSound = "drops/drop_soft.mp3";
+        maxStamina = 100;
+        stamina = maxStamina;
 		hidden = true;
 		mass = 2f;
 		canStepUpOn = false;
@@ -257,6 +259,9 @@ public class Player extends Actor {
 
 		maxHp = 8;
 		hp = maxHp;
+
+        maxStamina = 100;
+        stamina = maxStamina;
 
 		collision.set(0.2f,0.2f,0.65f);
 
@@ -2194,6 +2199,9 @@ public class Player extends Actor {
 	public int getMaxHp() {
 		return maxHp + calculatedStats.HP;
 	}
+
+    @Override
+    public int getMaxStamina() { return maxStamina + calculatedStats.STM;}
 
 	public int GetArmorClass() {
 		return calculatedStats.DEF + getDefenseStatBoost();

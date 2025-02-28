@@ -162,6 +162,8 @@ public class GlRenderer {
 	protected String keystr = "";
 	protected String healthText = "";
 
+    protected String staminaText = "";
+
 	protected Array<DrawableMesh> meshesToRender = new Array<DrawableMesh>();
 	protected Array<Entity> decalsToRender = new Array<Entity>();
 
@@ -172,6 +174,9 @@ public class GlRenderer {
 
 	protected int lastDrawnHp = 0;
 	protected int lastDrawnMaxHp = 0;
+
+    protected int lastDrawnStamina = 0;
+    protected int lastDrawnMaxStamina = 0;
 
 	protected Vector2 cameraBob = new Vector2();
 	protected Vector3 forwardDirection = new Vector3();
@@ -1583,6 +1588,7 @@ public class GlRenderer {
 		boolean isPoisoned = game.player.isPoisoned();
 		float healthSize = Game.GetUiSize() * 0.5f;
 
+        float staminaSize = Game.GetUiSize() * 0.5f;
 		//drawText("Entities rendered: " + drawnEntities, -camera2D.viewportWidth / 2 + healthSize / 2, -camera2D.viewportHeight / 2 + healthSize / 2, healthSize, Color.WHITE);
 
 		if(game.player.statusEffects != null && game.player.statusEffects.size > 0) {
@@ -1602,17 +1608,31 @@ public class GlRenderer {
 		float healthUiSize = Game.GetUiSize() * 0.05f;
 		float healthBarWidth = 64 * healthUiSize;
 		float healthBarHeight = 16 * healthUiSize;
+
+        float staminaUiSize = Game.GetUiSize() * 0.05f;
+        float staminaBarWidth = 64 * staminaUiSize;
+        float staminaBarHeight = 16 * staminaUiSize;
+
 		float padX = 6 * healthUiSize;
 		float padY = 3 * healthUiSize;
+
+        float stamPadX = padX * 2 + healthBarWidth;
 
 		float barHeight = 8f * healthUiSize;
 
 		uiBatch.setColor(!isPoisoned ? Color.RED : Color.GREEN);
-		uiBatch.draw(fontAtlas.getSprite(55), -camera2D.viewportWidth / 2 + padX * 1.75f, -camera2D.viewportHeight / 2 + padY + barHeight - 4 * healthUiSize, Math.max(0f, (healthBarWidth - padX) * game.player.hp / game.player.getMaxHp()), barHeight);
+		uiBatch.draw(fontAtlas.getSprite(55), (-camera2D.viewportWidth / 2 + padX * 1.75f), -camera2D.viewportHeight / 2 + padY + barHeight - 4 * healthUiSize, Math.max(0f, (healthBarWidth - padX) * game.player.hp / game.player.getMaxHp()), barHeight);
 
-		// health bar!
+        uiBatch.setColor(Color.YELLOW);
+        uiBatch.draw(fontAtlas.getSprite(55), (-camera2D.viewportWidth / 2 + padX * 1.75f) + healthBarWidth + 25, -camera2D.viewportHeight / 2 + padY + barHeight - 4 * staminaUiSize, Math.max(0f, (staminaBarWidth - padX) * game.player.stamina / game.player.getMaxStamina()), barHeight);
+
+        // health bar!
 		uiBatch.setColor(Color.WHITE);
 		uiBatch.draw(healthBarTextureRegion, -camera2D.viewportWidth / 2 + padX, -camera2D.viewportHeight / 2 + padY, healthBarWidth, healthBarHeight);
+
+        // stamina bar!
+        uiBatch.setColor(Color.WHITE);
+        uiBatch.draw(healthBarTextureRegion, -camera2D.viewportWidth / 2 + (stamPadX), -camera2D.viewportHeight / 2 + padY, staminaBarWidth, staminaBarHeight);
 
 		// only update the health string when needed
 		if(lastDrawnHp != game.player.hp || lastDrawnMaxHp != game.player.getMaxHp()) {
@@ -1621,7 +1641,16 @@ public class GlRenderer {
 			lastDrawnMaxHp = game.player.getMaxHp();
 		}
 
+        if (lastDrawnStamina != game.player.stamina || lastDrawnMaxStamina != game.player.getMaxStamina())
+        {
+            staminaText = game.player.stamina + "/" + game.player.getMaxStamina();
+            lastDrawnStamina = game.player.stamina;
+            lastDrawnMaxStamina = game.player.getMaxStamina();
+        }
+
 		drawText(healthText, -camera2D.viewportWidth / 2f + healthSize * 5.5f - ((healthSize * 0.4f) * (healthText.length() - 1)), -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f, healthUiSize * 3.75f, game.player.hp > game.player.getMaxHp() / 5 ? Color.WHITE : Color.RED);
+
+        drawText(staminaText, -camera2D.viewportWidth / 2f + staminaSize * 5.5f - ((staminaSize * 0.4f) * (staminaText.length() - 1)) + (stamPadX * .9f), -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f, staminaUiSize * 3.75f, game.player.stamina > game.player.getMaxStamina() / 5 ? Color.WHITE : Color.RED);
 
 		if(keystr != null && keystr.length() > 0) {
 			drawText(keystr, -camera2D.viewportWidth / 2 + healthSize / 2, -camera2D.viewportHeight / 2 + healthSize * 1.8f, healthSize, Color.WHITE);

@@ -462,6 +462,11 @@ public class Actor extends Entity {
 		return maxHp;
 	}
 
+    public int getMaxStamina()
+    {
+        return maxStamina;
+    }
+
 	@Override
 	public void stepUp(float posOffset) {
 		if(Math.abs(posOffset) > 0.06f) {
