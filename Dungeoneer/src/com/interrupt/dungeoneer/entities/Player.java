@@ -87,6 +87,7 @@ public class Player extends Actor {
 	public Vector3 offhandOffset = new Vector3(0.12f, -0.14f, 0.24f);
 
 	public boolean hasAttacked;
+	public boolean hasAttacked2;
 
 	private float attackSpeed = 1;
 	private float attackChargeSpeed = 1;
@@ -816,7 +817,7 @@ public class Player extends Actor {
 			else if(rot < 0) rot = rot % 6.28318531f;
 		}
 
-		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false;
+		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, attack2 = false, jump = false, sprint = false, sprintHeld = false;
 
         if(!isDead && !isInOverlay) {
             up = input.isMoveForwardPressed();
@@ -828,6 +829,7 @@ public class Player extends Actor {
             turnUp = input.isLookUpPressed();
             turnDown = input.isLookDownPressed();
             attack = input.isAttackPressed() || controllerState.attack;
+            attack2 = input.isAttack2Pressed();
             jump = input.isJumpPressed();
             sprint = input.isSprintPressed();
             sprintHeld = input.isSprintHeld();
@@ -1335,7 +1337,7 @@ public class Player extends Actor {
         Item primaryHeld = GetHeldItem();
         if(primaryHeld != null) primaryHeld.tickEquipped(this, level, delta, "PRIMARY");
 
-        Item offhandItem = equippedItems.get("OFFHAND");
+        Item offhandItem = GetHeldOffhandItem();
         if(offhandItem != null && !isHoldingTwoHanded()) offhandItem.tickEquipped(this, level, delta, "OFFHAND");
 
         // update player light

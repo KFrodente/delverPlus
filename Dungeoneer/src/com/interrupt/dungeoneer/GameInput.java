@@ -339,6 +339,10 @@ public class GameInput implements InputProcessor {
 		return isActionRequested(Action.ATTACK);
 	}
 
+    public boolean isAttack2Pressed() {
+        return isActionRequested(Action.ATTACK2);
+    }
+
 	public boolean isDropPressed() { return checkKeyDown(Action.DROP) || gamepadManager.controllerState.drop; }
 
 	public boolean isJumpPressed() { return isActionNewlyRequested(Action.JUMP); }

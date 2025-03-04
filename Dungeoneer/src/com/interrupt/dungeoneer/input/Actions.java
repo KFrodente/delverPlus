@@ -9,6 +9,7 @@ public class Actions {
 	public enum Action {
 		USE,
 		ATTACK,
+        ATTACK2,
 		DROP,
 		INVENTORY,
 		ITEM_NEXT,

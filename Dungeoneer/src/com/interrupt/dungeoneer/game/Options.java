@@ -25,8 +25,8 @@ public class Options {
     public boolean enableMusic = true;
     public float mouseXSensitivity = 1;
     public float mouseYSensitivity = 1;
-    public Action mouseButton1Action = Action.ATTACK;
-    public Action mouseButton2Action = Action.USE;
+    public Action mouseButton1Action = Action.ATTACK2;
+    public Action mouseButton2Action = Action.ATTACK;
     public Action mouseButton3Action = Action.INVENTORY;
     public float musicVolume = 0.5f;
     public float sfxVolume = 1f;

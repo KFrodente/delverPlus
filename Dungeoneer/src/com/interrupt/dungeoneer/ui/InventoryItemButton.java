@@ -158,7 +158,7 @@ public class InventoryItemButton extends Button {
     public void act(float delta) {
         super.act(delta);
 
-        // Nothing to do if we we were not clicked on before
+        // Nothing to do if we were not clicked on before
         if(!isTouched)
             return;
 
