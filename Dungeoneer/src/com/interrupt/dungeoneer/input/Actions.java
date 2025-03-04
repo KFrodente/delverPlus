@@ -25,15 +25,17 @@ public class Actions {
 		MENU_SELECT,
 		MENU_CANCEL,
 		PAUSE,
-		JUMP
+		JUMP,
+        SPRINT
 	}
 
 	public static Hashtable<Action, Integer> keyBindings = new Hashtable<Action, Integer>();
 	public static Hashtable<Action, GamepadBinding> gamepadBindings = new Hashtable<Action, GamepadBinding>();
 	public static Array<Action> keyOrder = new Array<Action>();
-	
+
 	static {
 		keyBindings.put(Action.USE, Keys.E);
+        keyBindings.put(Action.JUMP, Keys.Z);
 		keyBindings.put(Action.ATTACK, Keys.SPACE);
 		keyBindings.put(Action.DROP, Keys.Q);
 		keyBindings.put(Action.INVENTORY, Keys.I);
@@ -49,8 +51,10 @@ public class Actions {
 		keyBindings.put(Action.TURN_RIGHT, Keys.RIGHT);
 		keyBindings.put(Action.LOOK_UP, Keys.UP);
 		keyBindings.put(Action.LOOK_DOWN, Keys.DOWN);
-		
+		keyBindings.put(Action.SPRINT, Keys.SHIFT_LEFT);
+
 		keyOrder.add(Action.USE);
+        keyOrder.add(Action.JUMP);
 		keyOrder.add(Action.ATTACK);
 		keyOrder.add(Action.DROP);
 		keyOrder.add(Action.INVENTORY);
@@ -66,5 +70,6 @@ public class Actions {
 		keyOrder.add(Action.TURN_RIGHT);
 		keyOrder.add(Action.LOOK_UP);
 		keyOrder.add(Action.LOOK_DOWN);
+		keyOrder.add(Action.SPRINT);
 	}
 }

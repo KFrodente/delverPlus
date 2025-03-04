@@ -7,25 +7,26 @@ public class ControllerState {
 	public enum MenuButtons { SELECT, CANCEL}
 	public enum Axis { MOVE_X, MOVE_Y, LOOK_X, LOOK_Y, TRIGGER_LEFT, TRIGGER_RIGHT }
 	public enum DPAD { LEFT, RIGHT, UP, DOWN }
-	
+
 	public Array<Actions.Action> buttonEvents = new Array<Actions.Action>();
 	public Array<MenuButtons> menuButtonEvents = new Array<MenuButtons>();
 	public Array<DPAD> dpadEvents = new Array<DPAD>();
 
 	public Array<MenuButtons> lastMenuButtonEvents = new Array<MenuButtons>();
-	
+
 	public Vector2 rawMove = new Vector2();
 	public Vector2 rawLook = new Vector2();
-	
+
 	public Vector2 controllerMove = new Vector2();
 	public Vector2 controllerLook = new Vector2();
-	
+
 	public boolean use;
 	public boolean attack;
 	public boolean drop;
 	public boolean map;
 	public boolean inventory;
 	public boolean pause;
+    public boolean sprint;
 
 	public void clearEvents() {
 		this.buttonEvents.clear();
@@ -40,5 +41,6 @@ public class ControllerState {
 		this.map = false;
 		this.inventory = false;
 		this.pause = false;
+        this.sprint = false;
 	}
 }
