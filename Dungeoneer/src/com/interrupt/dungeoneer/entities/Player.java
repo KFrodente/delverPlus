@@ -1249,48 +1249,15 @@ public class Player extends Actor {
 					attackCharge += attackChargeSpeed * delta;
 				}
 			}
-			else if(held instanceof Potion)
-			{
-				if(attack)
-				{
-					((Potion)held).Drink(this);
-					removeFromInventory(held);
-				}
-			}
-			else if(held instanceof Food)
-			{
-				if(attack)
-				{
-					((Food)held).Eat(this);
-					removeFromInventory(held);
-				}
-			}
-			else if(held instanceof Note) {
-				if (attack) {
-					((Note)held).Read(this);
-				}
-			}
-			else if(held instanceof Scroll) {
-				if (attack) {
-					((Scroll)held).Read(this);
-				}
-			}
-			else if(held instanceof BagUpgrade) {
-				if (attack) {
-					((BagUpgrade)held).inventoryUse(this);
-				}
-			}
-			else if(held instanceof Armor)
-			{
-				if(attack)
-				{
-					Armor a = (Armor)held;
-					ChangeHeldItem(null, true);
-					equip(a);
-				}
-			}
+            else // Not Automatic Weapon
+            {
+                if(attack)
+                {
+                    held.AttackPressed(this);
+                }
+            }
 		}
-
+// - end of item handling
         if(!isDead && !isInOverlay) {
             if(input.doUseAction() ||
                     controllerState.buttonEvents.contains(Action.USE, true)) Use(level);

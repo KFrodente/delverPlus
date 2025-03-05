@@ -93,4 +93,11 @@ public class Food extends Item {
 	public String GetInfoText() {
 		return StringManager.getOrDefaultTo(infoText, infoText);
 	}
+
+    @Override
+    public void AttackPressed(Player user)
+    {
+        Eat(user);
+        user.removeFromInventory(this);
+    }
 }

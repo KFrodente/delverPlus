@@ -20,7 +20,7 @@ import com.interrupt.managers.StringManager;
 
 public class Note extends Item {
 	public Note() { isSolid = true; yOffset = -0.1f; }
-	
+
 	@EditorProperty(group = "Note Message")
 	public String messageFile = null;
 
@@ -29,30 +29,30 @@ public class Note extends Item {
 
 	@EditorProperty(group = "Note Message")
 	Color textColor = new Color(0.4f, 0.2f, 0.2f, 1f);
-	
+
 	@Override
 	public String GetInfoText() {
 		return "";
 	}
-	
+
 	public Array<String> messages = null;
 
 	@EditorProperty(group = "Note Message")
 	public String backgroundImage = null;
-	
+
 	private Array<String> getReadMessages(Player player) {
 		String seenMessages = player.seenMessages.get(messageFile);
 		if(seenMessages == null) return new Array<String>();
 		return new Array<String>(seenMessages.split(","));
 	}
-	
+
 	private void updateReadMessages(Player player, Array<String> messagesToUpdate) {
 		messagesToUpdate.shrink();
 		player.seenMessages.put(messageFile, StringJoiner(messagesToUpdate, ","));
 	}
-	
+
 	public void Read(Player player) {
-		
+
 		// grab a random message if we need to
 		if(messageFile != null && !messageFile.equals("")) {
 			Message m = MessageManager.getMessage(messageFile);
@@ -60,13 +60,13 @@ public class Note extends Item {
 				// build a list of all the numbers to pick from
 				Array<String> availableIndices = new Array<String>();
 				for(int i = 0; i < m.messages.size; i++) { availableIndices.add(Integer.valueOf(i).toString()); }
-				
+
 				// grab the list of the ones seen before
 				Array<String> seenMessages = getReadMessages(player);
-				
+
 				// remove the seen ones
 				if(seenMessages != null) availableIndices.removeAll(seenMessages, true);
-				
+
 				// grab one of the remaining ones to display
 				Integer saw = null;
 				if(availableIndices.size > 0) {
@@ -77,18 +77,18 @@ public class Note extends Item {
 					player.seenMessages.remove(messageFile);
 					saw = Game.rand.nextInt(m.messages.size);
 				}
-				
+
 				// get one
 				messages = m.messages.get(saw);
-				
+
 				// update the seen list
 				if(seenMessages == null) seenMessages = new Array<String>();
 				seenMessages.add(saw.toString());
-				
+
 				updateReadMessages(player, seenMessages);
 			}
 		}
-		
+
 		NinePatchDrawable background = new NinePatchDrawable(new NinePatch(UiSkin.getSkin().getRegion("note-window"), 16, 16, 16, 16));
 
 		if(backgroundImage != null && !backgroundImage.isEmpty()) {
@@ -97,7 +97,7 @@ public class Note extends Item {
 				background = new NinePatchDrawable(new NinePatch(new TextureRegion(bg), 16, 16, 16, 16));
 			}
 		}
-		
+
 		if(messages != null) {
 			OverlayManager.instance.push(new MessageOverlay(messages, background, textColor));
 		}
@@ -115,12 +115,12 @@ public class Note extends Item {
 			OverlayManager.instance.push(new MessageOverlay(message, background, textColor));
 		}
 	}
-	
+
 	public boolean inventoryUse(Player player){
 		Read(player);
         return true;
 	}
-	
+
 	private static String StringJoiner(Array<String> aArr, String sSep) {
 	    StringBuilder sbStr = new StringBuilder();
 	    for (int i = 0, il = aArr.size; i < il; i++) {
@@ -130,4 +130,10 @@ public class Note extends Item {
 	    }
 	    return sbStr.toString();
 	}
+
+    @Override
+    public void AttackPressed(Player user)
+    {
+        Read(user);
+    }
 }
