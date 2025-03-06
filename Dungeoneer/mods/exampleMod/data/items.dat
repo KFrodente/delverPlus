@@ -1,0 +1,44 @@
+{
+	melee:{
+		"1" : [
+			{
+				class:com.interrupt.dungeoneer.entities.items.Sword,
+				itemType:sword,
+				spriteAtlas:"example-mod-items",
+				tex:0,
+				heldTex:0,
+				inventoryTex:0,
+				name:"Super Magical Dagger",
+				baseDamage:10,
+				randDamage:10,
+				knockback:0.1,
+				reach:0.45,
+				speed:1.0,
+				chargespeed:1.0,
+				cost:5,
+				pickupSound:"pu_metal.mp3",
+				attackAnimation:"daggerAttack",
+				attackStrongAnimation:"maceStrongAttack",
+				chargeAnimation:"daggerCharge",
+				dropSound:"drops/drop_metal_01.mp3,drops/drop_metal_02.mp3,drops/drop_metal_03.mp3"
+			}
+		]
+	},
+	"armor": {
+        "1" : [
+            {
+                "class": "com.interrupt.dungeoneer.entities.items.DoubleJumpBoots",
+                "itemType": "armor",
+                tex:0,
+                heldTex:0,
+                inventoryTex:0,
+                "spriteAtlas": "double-jump-boots",
+                "name": "Double Jump Boots",
+                "armor": 3,
+                "yOffset": -0.11,
+                "cost": 8,
+                "pickupSound": "pu_gen_v2.mp3"
+            },
+        ]
+    }
+}
