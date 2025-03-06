@@ -84,7 +84,7 @@ public class Player extends Actor {
 	public Vector3 handOffset = new Vector3(-0.12f, -0.07f, 0.28f);
 
 	/** Offhand offset */
-	public Vector3 offhandOffset = new Vector3(0.12f, -0.14f, 0.24f);
+	public Vector3 offhandOffset = new Vector3(0.12f, -0.7f, 0.24f);
 
 	public boolean hasAttacked;
 	public boolean hasAttacked2;
@@ -105,6 +105,7 @@ public class Player extends Actor {
 
 	public float attackChargeTime = 40;
 	public float attackCharge = 0;
+	public float attack2Charge = 0;
 
 	@Deprecated
 	public float attackDelay = 0.0f;
@@ -198,6 +199,7 @@ public class Player extends Actor {
 	private HashMap<String, Float> messageViews = new HashMap<String, Float>();
 
 	public transient LerpedAnimation handAnimation = null;
+	public transient LerpedAnimation hand2Animation = null;
 
 	public PlayerHistory history = new PlayerHistory();
 
@@ -849,7 +851,12 @@ public class Player extends Actor {
 		if(heldItem != null) {
 			if(handAnimation != null && handAnimation.playing) handAnimation.animate(delta);
 		}
-		else if(heldItem == null) handAnimation = null;
+		else handAnimation = null;
+
+        if(GetHeldOffhandItem() != null) {
+            if(hand2Animation != null && hand2Animation.playing) hand2Animation.animate(delta);
+        }
+        else hand2Animation = null;
 
 		// Check for mobile attack press
 		if(Game.isMobile && !isInOverlay)
@@ -867,15 +874,17 @@ public class Player extends Actor {
 		}
 
 		// charging an attack makes walking slower
-		if(attackCharge > 0)
+		if(attackCharge > 0 || attack2Charge > 0)
 		{
-			float walkMod = attackCharge / attackChargeTime;
+            float chargeToUse = (attackCharge > 0) ? attackCharge : attack2Charge;
+			float walkMod = chargeToUse / attackChargeTime;
 			walkMod = Math.min(walkMod, 1);
 
 			walkVel *= ( 1 - ( 0.5f * walkMod ) * (1.2 - stats.DEX * 0.06f) );
 
 			// if not holding anything, cancel the attack
 			if(GetHeldItem() == null) attackCharge = 0;
+            if(GetHeldOffhandItem() == null) attack2Charge = 0;
 		}
 
 		if(GetHeldItem() instanceof Weapon) attackChargeSpeed = ((Weapon)GetHeldItem()).getChargeSpeed() + getAttackSpeedStatBoost();
@@ -960,7 +969,7 @@ public class Player extends Actor {
 			if(Game.hud.dragging != null) {
 				touchingItem = true;
 			}
-			else if(wasJustTouched && !attack && input.uiTouchPointer == null && input.lastTouchedPointer != null) {
+			else if(wasJustTouched && !attack && !attack2 && input.uiTouchPointer == null && input.lastTouchedPointer != null) {
 				Entity touching = pickEntity(level, input.getPointerX(), input.getPointerY(), 0.9f);
 				if(touching != null)
                     input.uiTouchPointer = input.lastTouchedPointer;
@@ -1145,6 +1154,7 @@ public class Player extends Actor {
 
 		tickcount += delta;
 		if(hasAttacked && !attack) hasAttacked = false;
+		if(hasAttacked2 && !attack2) hasAttacked2 = false;
 		if(doingHeldItemTransition) heldItemTransition += delta;
 
 		// vertical look clamp
@@ -1196,8 +1206,62 @@ public class Player extends Actor {
 		}
 		else {
 			Item held = GetHeldItem();
+            Item heldOffhand = GetHeldOffhandItem();
 			if(handAnimation == null) playIdleAnimation(held);
 
+            // HANDLE OFFHAND
+            if(heldOffhand instanceof Weapon) {
+                // Automatic weapons should not do the attack when released
+                boolean attackOnRelease = true;
+
+                attackOnRelease = ((Weapon)heldOffhand).chargesAttack;
+                if(heldOffhand instanceof Wand && ((Wand)heldOffhand).autoFire) attackOnRelease = false;
+                if(heldOffhand instanceof Gun) {
+                    attackOnRelease = false;
+                    if(!attack2) ((Gun)heldOffhand).resetTrigger();
+                }
+
+                if((!attack2 && attack2Charge > 0 && !hasAttacked2)) {
+                    if(attackOnRelease) {
+                        Attack2(level);
+                    }
+                    else {
+                        hasAttacked2 = true;
+                        attack2Charge = 0;
+                    }
+                }
+                else if(attack2 && !((Weapon)heldOffhand).chargesAttack)
+                {
+                    if(heldOffhand instanceof Gun) {
+                        Gun g = (Gun)heldOffhand;
+                        if(g.canFire()) {
+                            g.doAttack(this, level, 1);
+                        }
+                    }
+                    else {
+                        attack2Charge = attackChargeTime;
+                        Attack2(level);
+                    }
+                }
+                else if(attack2 && attack2Charge < attackChargeTime) {
+                    if(heldOffhand instanceof Wand) {
+                        Wand w = (Wand) heldOffhand;
+                        if (w.autoFire) {
+                            if(hand2Animation != null) hand2Animation.stop();
+                            Attack2(level);
+                        }
+                        else {
+                            if(attack2Charge <= 0) playChargeAnimation2(attackChargeSpeed);
+                        }
+                    }
+                    else {
+                        if(attack2Charge <= 0) playChargeAnimation2(attackChargeSpeed);
+                    }
+
+                    attack2Charge += attackChargeSpeed * delta;
+                }
+            }
+            // HANDLE MAIN HAND
 			if(held instanceof Weapon || held instanceof Decoration || held instanceof FusedBomb) {
 				// Automatic weapons should not do the attack when released
 				boolean attackOnRelease = true;
@@ -1398,6 +1462,25 @@ public class Player extends Actor {
 
 		if(handAnimation == null) playIdleAnimation(w);
 	}
+
+    private void playChargeAnimation2(float animationSpeed) {
+        LerpedAnimation previousAnimation = hand2Animation;
+
+        Item w = GetHeldOffhandItem();
+        w.onChargeStart();
+
+        if(w instanceof Weapon) {
+            Weapon weapon = (Weapon)w;
+            hand2Animation = Game.animationManager.getAnimation(weapon.chargeAnimation);
+            if(hand2Animation != null) hand2Animation.play(animationSpeed * 0.03f, previousAnimation);
+        }
+        else if(w instanceof Decoration || w instanceof Potion || w instanceof FusedBomb) {
+            hand2Animation = Game.animationManager.decorationCharge;
+            if(hand2Animation != null) hand2Animation.play(animationSpeed * 0.03f, previousAnimation);
+        }
+
+        if(hand2Animation == null) playIdleAnimation(w);
+    }
 
 	private Item pickItem(Level level, int pickX, int pickY, float maxDistance) {
 		Entity picked = pickEntity(level,pickX,pickY,maxDistance);
@@ -1610,6 +1693,40 @@ public class Player extends Actor {
 		// alert nearby enemies!
 		visiblityMod = 1f;
 	}
+
+    private void Attack2(Level lvl)
+    {
+        hasAttacked2 = true;
+        float attackPower = attack2Charge / attackChargeTime;
+        attack2Charge = 0;
+
+        Item held = GetHeldOffhandItem();
+        if(held == null) return;
+        else if(held instanceof Weapon)
+        {
+            Weapon w = (Weapon)held;
+
+            // start the attack
+            playAttackAnimation(w, attackPower);
+            w.doAttack(this, lvl, attackPower);
+        }
+        else
+        {
+            dropItem(held, lvl, attackPower);
+            heldItem = null;
+
+            held.xa = (Game.camera.direction.x) * (attackPower * 0.3f);
+            held.ya = (Game.camera.direction.z) * (attackPower * 0.3f);
+            held.za = (Game.camera.direction.y) * (attackPower * 0.3f);
+
+            held.za += attackPower * 0.05;
+
+            if (held instanceof Potion) ((Potion)held).activateExplosion(false);
+        }
+
+        // alert nearby enemies!
+        visiblityMod = 1f;
+    }
 
 	public void tossHeldItem(Level level, float attackPower) {
 		Item held = GetHeldItem();

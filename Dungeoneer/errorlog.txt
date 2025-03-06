@@ -1,0 +1,14 @@
+Fatal error in Game loop!
+
+java.lang.NullPointerException
+	at com.interrupt.dungeoneer.entities.Player.playChargeAnimation(Player.java:1445)
+	at com.interrupt.dungeoneer.entities.Player.tick(Player.java:1252)
+	at com.interrupt.dungeoneer.game.Game.tick(Game.java:505)
+	at com.interrupt.dungeoneer.GameManager.tick(GameManager.java:122)
+	at com.interrupt.dungeoneer.screens.GameScreen.render(GameScreen.java:73)
+	at com.badlogic.gdx.Game.render(Game.java:48)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window.update(Lwjgl3Window.java:387)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.loop(Lwjgl3Application.java:193)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:167)
+	at com.interrupt.dungeoneer.DesktopStarter.main(DesktopStarter.java:59)
+

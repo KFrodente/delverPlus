@@ -1729,7 +1729,13 @@ public class GlRenderer {
 				if(Game.dragging.GetEquipLoc().equals(equipLoc.equipLoc))
 					uiBatch.setColor(INVBOX_CAN_EQUIP);
 				else
-					uiBatch.setColor(INVBOX_CANT_EQUIP);
+                {
+                    if(equipLoc.equipLoc.equals("OFFHAND")) {
+                        uiBatch.setColor(INVBOX_CAN_EQUIP);
+                    }
+                    else uiBatch.setColor(INVBOX_CANT_EQUIP);
+                }
+
 			}
 			else {
 				if(equipLoc.equipLoc.equals("OFFHAND") && game.player.isHoldingTwoHanded()) uiBatch.setColor(INVBOX_NOT_AVAILABLE);

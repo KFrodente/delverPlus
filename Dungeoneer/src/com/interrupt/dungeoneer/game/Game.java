@@ -1162,7 +1162,12 @@ public class Game {
 
 		if(equipOverSlot != null) {
 
-			if(!dragging.GetEquipLoc().equals(equipOverSlot)) return DragAndDropResult.invalid;
+			if(!dragging.GetEquipLoc().equals(equipOverSlot)) {
+                if(!(dragging instanceof Weapon && equipOverSlot.equals("OFFHAND")))
+                {
+                    return DragAndDropResult.invalid;
+                }
+            }
 
 			swap = Game.instance.player.equippedItems.get(equipOverSlot);
 
