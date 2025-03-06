@@ -37,7 +37,8 @@
                 "armor": 3,
                 "yOffset": -0.11,
                 "cost": 8,
-                "pickupSound": "pu_gen_v2.mp3"
+                "pickupSound": "pu_gen_v2.mp3",
+                "equipLoc": "PANTS",
             },
         ]
     }

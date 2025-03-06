@@ -646,8 +646,16 @@ public class Player extends Actor {
 			}
 
 			// friction!
-			if(isOnFloor) friction = current.data.friction;
-			else if(isOnEntity || isOnLadder) friction = 1f;
+			if(isOnFloor)
+            {
+                friction = current.data.friction;
+                if (doubleJumpEquipped()) increaseAirJumps();
+            }
+			else if(isOnEntity || isOnLadder)
+            {
+                friction = 1f;
+                if (doubleJumpEquipped()) increaseAirJumps();
+            }
 			else friction = 0.1f;
 
 			xa -= ((xa - (xa * 0.8f)) * friction) * delta;
@@ -1054,9 +1062,12 @@ public class Player extends Actor {
 		rotya *= 0.8;
 
 		if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
-            System.out.print("I MADE IT!!!");
 			za += jumpHeight;
 		}
+        else if (jump && doubleJumpEquipped() && !isOnLadder)
+        {
+            if (canAirJump()) za += jumpHeight * 1.5f;
+        }
 
 		// touch movement
 		if(Game.isMobile && !isDead && !isInOverlay) {
@@ -1309,6 +1320,27 @@ public class Player extends Actor {
 
         updatePlayerLight(level, delta);
         tickAttached(level, delta);
+    }
+
+    private boolean doubleJumpEquipped()
+    {
+        DoubleJumpBoots pantsItem = (DoubleJumpBoots)equippedItems.get("PANTS");
+        return pantsItem != null;
+    }
+
+    private boolean canAirJump()
+    {
+        DoubleJumpBoots pantsItem = (DoubleJumpBoots)equippedItems.get("PANTS");
+        pantsItem.AirJumpsRemaining--;
+        //equippedItems.get("PANTS") = pantsItem;
+
+        return pantsItem.AirJumpsRemaining > -1;
+    }
+
+    private void increaseAirJumps()
+    {
+        DoubleJumpBoots pantsItem = (DoubleJumpBoots)equippedItems.get("PANTS");
+        pantsItem.AirJumpsRemaining = 1;
     }
 
 	private void chargeDrop(float delta) {
