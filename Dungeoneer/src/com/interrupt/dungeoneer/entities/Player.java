@@ -233,6 +233,10 @@ public class Player extends Actor {
 
     public boolean godMode = false;
 
+    private int ticksSinceLastStaminaUsage = 0;
+    private int ticksNeededBeforeStaminaRegen = 400;
+    private float staminaRegenPerTick = .1f;
+
     // Used to act on breaking changes between save versions
     public int saveVersion = -1;
 
@@ -891,6 +895,11 @@ public class Player extends Actor {
         if (sprint && isOnFloor && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
         if (sprintHeld && isOnFloor && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
 
+        //refills stamina if no stamina using keys are pressed for a duration
+        ticksSinceLastStaminaUsage++;
+        if (ticksSinceLastStaminaUsage >= ticksNeededBeforeStaminaRegen && stamina < maxStamina) GainStamina(.1f);
+
+
 		// walking backwards is slower
 		if(walkVelVector.y < 0) {
 			walkVelVector.x *= 0.8f;
@@ -1519,11 +1528,27 @@ public class Player extends Actor {
 
     public boolean UseStamina(float amount)
     {
-        if (stamina <= 0) return false;
+        ticksSinceLastStaminaUsage = 0;
+        if (stamina <= 0) {
+            stamina = 0;
+            return false;
+        }
 
         stamina -= amount;
 
         return true;
+    }
+
+    public void GainStamina(float amount)
+    {
+        stamina += amount;
+        if (stamina > maxStamina) stamina = maxStamina;
+    }
+
+    public void GainStaminaPercent(float amount)
+    {
+        stamina += maxStamina * amount;
+        if (stamina > maxStamina) stamina = maxStamina;
     }
 
 	private void Use(Level level, int touchX, int touchY) {
