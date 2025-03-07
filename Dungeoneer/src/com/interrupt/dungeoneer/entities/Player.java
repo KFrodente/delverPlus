@@ -84,7 +84,7 @@ public class Player extends Actor {
 	public Vector3 handOffset = new Vector3(-0.12f, -0.07f, 0.28f);
 
 	/** Offhand offset */
-	public Vector3 offhandOffset = new Vector3(0.12f, -0.7f, 0.24f);
+	public Vector3 offhandOffset = new Vector3(0.12f, -0.07f, 0.24f);
 
 	public boolean hasAttacked;
 	public boolean hasAttacked2;
