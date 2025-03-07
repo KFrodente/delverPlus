@@ -2212,12 +2212,6 @@ public class GlRenderer {
 
         if (heldItem instanceof Weapon) {
             Weapon weapon = (Weapon)heldItem;
-
-            if(weapon.twoHanded)
-            {
-                offset = new Vector3(game.player.offhandOffset.x + 0.25f, game.player.offhandOffset.y, game.player.offhandOffset.z);
-            }
-
             String animationName = weapon.attackAnimation;
             LerpedAnimation animation = Game.animationManager.getAnimation(animationName);
             if (animation != null) {
