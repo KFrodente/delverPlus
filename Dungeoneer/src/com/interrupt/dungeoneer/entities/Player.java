@@ -84,17 +84,15 @@ public class Player extends Actor {
 	public Vector3 handOffset = new Vector3(-0.12f, -0.07f, 0.28f);
 
 	/** Offhand offset */
-	public Vector3 offhandOffset = new Vector3(0.12f, -0.07f, 0.24f);
+	public Vector3 offhandOffset = new Vector3(0.12f, -0.7f, 0.24f);
 
 	public boolean hasAttacked;
 	public boolean hasAttacked2;
 
 	private float attackSpeed = 1;
 	private float attackChargeSpeed = 1;
-	private float attack2ChargeSpeed = 1;
 
 	public float handAnimateTimer = 0;
-	public float hand2AnimateTimer = 0;
 	private float tickcount = 0;
 
 	private float playtime = -1;
@@ -106,7 +104,6 @@ public class Player extends Actor {
 	public int keys = 0;
 
 	public float attackChargeTime = 40;
-	public float attack2ChargeTime = 40;
 	public float attackCharge = 0;
 	public float attack2Charge = 0;
 
@@ -880,8 +877,7 @@ public class Player extends Actor {
 		if(attackCharge > 0 || attack2Charge > 0)
 		{
             float chargeToUse = (attackCharge > 0) ? attackCharge : attack2Charge;
-            float chargeTimeToUse = (attackCharge > 0) ? attackChargeTime : attack2ChargeTime;
-			float walkMod = chargeToUse / chargeTimeToUse;
+			float walkMod = chargeToUse / attackChargeTime;
 			walkMod = Math.min(walkMod, 1);
 
 			walkVel *= ( 1 - ( 0.5f * walkMod ) * (1.2 - stats.DEX * 0.06f) );
@@ -893,9 +889,6 @@ public class Player extends Actor {
 
 		if(GetHeldItem() instanceof Weapon) attackChargeSpeed = ((Weapon)GetHeldItem()).getChargeSpeed() + getAttackSpeedStatBoost();
 		else attackChargeSpeed = 1;
-
-        if(GetHeldOffhandItem() instanceof Weapon) attack2ChargeSpeed = ((Weapon)GetHeldOffhandItem()).getChargeSpeed() + getAttackSpeedStatBoost();
-        else attack2ChargeSpeed = 1;
 
 		xm = 0;
 		zm = 0;
@@ -1203,18 +1196,20 @@ public class Player extends Actor {
 
 		tick(level, delta);
 
-        // HANDLE OFFHAND
-        if(hand2AnimateTimer > 0) {
-            hand2AnimateTimer -= delta;
+		if(handAnimateTimer > 0) {
+			handAnimateTimer -= delta;
 
-            Item held = GetHeldOffhandItem();
-            if(held instanceof Weapon) {
-                ((Weapon)held).tickAttack(this, level, delta, true);
-            }
-        }
-        else {
+			Item held = GetHeldItem();
+			if(held != null && held instanceof Weapon) {
+				((Weapon)held).tickAttack(this, level, delta);
+			}
+		}
+		else {
+			Item held = GetHeldItem();
             Item heldOffhand = GetHeldOffhandItem();
+			if(handAnimation == null) playIdleAnimation(held);
 
+            // HANDLE OFFHAND
             if(heldOffhand instanceof Weapon) {
                 // Automatic weapons should not do the attack when released
                 boolean attackOnRelease = true;
@@ -1240,15 +1235,15 @@ public class Player extends Actor {
                     if(heldOffhand instanceof Gun) {
                         Gun g = (Gun)heldOffhand;
                         if(g.canFire()) {
-                            g.doAttack(this, level, 1, true);
+                            g.doAttack(this, level, 1);
                         }
                     }
                     else {
-                        attack2Charge = attack2ChargeTime;
+                        attack2Charge = attackChargeTime;
                         Attack2(level);
                     }
                 }
-                else if(attack2 && attack2Charge < attack2ChargeTime) {
+                else if(attack2 && attack2Charge < attackChargeTime) {
                     if(heldOffhand instanceof Wand) {
                         Wand w = (Wand) heldOffhand;
                         if (w.autoFire) {
@@ -1256,32 +1251,17 @@ public class Player extends Actor {
                             Attack2(level);
                         }
                         else {
-                            if(attack2Charge <= 0) playChargeAnimation2(attack2ChargeSpeed);
+                            if(attack2Charge <= 0) playChargeAnimation2(attackChargeSpeed);
                         }
                     }
                     else {
-                        if(attack2Charge <= 0) playChargeAnimation2(attack2ChargeSpeed);
+                        if(attack2Charge <= 0) playChargeAnimation2(attackChargeSpeed);
                     }
 
-                    attack2Charge += attack2ChargeSpeed * delta;
+                    attack2Charge += attackChargeSpeed * delta;
                 }
             }
-        }
-
-        // HANDLE MAIN HAND
-		if(handAnimateTimer > 0) {
-			handAnimateTimer -= delta;
-
-			Item held = GetHeldItem();
-			if(held instanceof Weapon) {
-				((Weapon)held).tickAttack(this, level, delta, false);
-			}
-		}
-		else {
-			Item held = GetHeldItem();
-
-			if(handAnimation == null) playIdleAnimation(held, false);
-
+            // HANDLE MAIN HAND
 			if(held instanceof Weapon || held instanceof Decoration || held instanceof FusedBomb) {
 				// Automatic weapons should not do the attack when released
 				boolean attackOnRelease = true;
@@ -1307,7 +1287,7 @@ public class Player extends Actor {
 					if(held instanceof Gun) {
 						Gun g = (Gun)held;
 						if(g.canFire()) {
-							g.doAttack(this, level, 1, false);
+							g.doAttack(this, level, 1);
 						}
 					}
 					else {
@@ -1446,28 +1426,14 @@ public class Player extends Actor {
         visiblityMod = Math.min(1f, visiblityMod);
     }
 
-    private void playIdleAnimation(Item held, boolean offHand) {
-        if(offHand)
-        {
-            if(hand2Animation == null && held instanceof Weapon) {
-                Weapon w = (Weapon)held;
-                hand2Animation = Game.animationManager.getAnimation(w.chargeAnimation);
-                if(hand2Animation == null) hand2Animation = Game.animationManager.getAnimation(w.attackAnimation);
-                if(hand2Animation != null) {
-                    hand2Animation.play(0f);
-                    hand2Animation.stop();
-                }
-            }
-        }
-        else {
-            if(handAnimation == null && held instanceof Weapon) {
-                Weapon w = (Weapon)held;
-                handAnimation = Game.animationManager.getAnimation(w.chargeAnimation);
-                if(handAnimation == null) handAnimation = Game.animationManager.getAnimation(w.attackAnimation);
-                if(handAnimation != null) {
-                    handAnimation.play(0f);
-                    handAnimation.stop();
-                }
+    private void playIdleAnimation(Item held) {
+        if(handAnimation == null && held instanceof Weapon) {
+            Weapon w = (Weapon)held;
+            handAnimation = Game.animationManager.getAnimation(w.chargeAnimation);
+            if(handAnimation == null) handAnimation = Game.animationManager.getAnimation(w.attackAnimation);
+            if(handAnimation != null) {
+                handAnimation.play(0f);
+                handAnimation.stop();
             }
         }
     }
@@ -1494,7 +1460,7 @@ public class Player extends Actor {
 			if(handAnimation != null) handAnimation.play(animationSpeed * 0.03f, previousAnimation);
 		}
 
-		if(handAnimation == null) playIdleAnimation(w, false);
+		if(handAnimation == null) playIdleAnimation(w);
 	}
 
     private void playChargeAnimation2(float animationSpeed) {
@@ -1513,7 +1479,7 @@ public class Player extends Actor {
             if(hand2Animation != null) hand2Animation.play(animationSpeed * 0.03f, previousAnimation);
         }
 
-        if(hand2Animation == null) playIdleAnimation(w, true);
+        if(hand2Animation == null) playIdleAnimation(w);
     }
 
 	private Item pickItem(Level level, int pickX, int pickY, float maxDistance) {
@@ -1694,29 +1660,6 @@ public class Player extends Actor {
         }
     }
 
-    public void playAttack2Animation(Weapon w, float attackPower) {
-        playAttack2Animation(w, attackPower, ((w.getSpeed() + getAttackSpeedStatBoost()) * 0.25f) + ((stats.DEX - 4) * 0.015f));
-    }
-
-    public void playAttack2Animation(Weapon w, float attackPower, float speed) {
-        // may have to blend with the previous animation
-        LerpedAnimation previousAnimation = null;
-        if(hand2Animation != null) {
-            previousAnimation = hand2Animation;
-        }
-
-        // play either the weak or strong attack animation
-        if(attackPower < 0.5f || w.attackStrongAnimation == null )
-            hand2Animation = Game.animationManager.getAnimation(w.attackAnimation);
-        else
-            hand2Animation = Game.animationManager.getAnimation(w.attackStrongAnimation);
-
-        if(hand2Animation != null) {
-            if(previousAnimation != null) previousAnimation.stop();
-            hand2Animation.play(speed, previousAnimation);
-        }
-    }
-
 	private void Attack(Level lvl)
 	{
 		hasAttacked = true;
@@ -1731,7 +1674,7 @@ public class Player extends Actor {
 
 			// start the attack
 			playAttackAnimation(w, attackPower);
-			w.doAttack(this, lvl, attackPower, false);
+			w.doAttack(this, lvl, attackPower);
 		}
 		else
 		{
@@ -1754,7 +1697,7 @@ public class Player extends Actor {
     private void Attack2(Level lvl)
     {
         hasAttacked2 = true;
-        float attackPower = attack2Charge / attack2ChargeTime;
+        float attackPower = attack2Charge / attackChargeTime;
         attack2Charge = 0;
 
         Item held = GetHeldOffhandItem();
@@ -1764,8 +1707,8 @@ public class Player extends Actor {
             Weapon w = (Weapon)held;
 
             // start the attack
-            playAttack2Animation(w, attackPower);
-            w.doAttack(this, lvl, attackPower, true);
+            playAttackAnimation(w, attackPower);
+            w.doAttack(this, lvl, attackPower);
         }
         else
         {

@@ -92,7 +92,7 @@ public class Gun extends Weapon {
     }
 
 	@Override
-	public void doAttack(Player p, Level lvl, float attackPower, boolean offHand) {
+	public void doAttack(Player p, Level lvl, float attackPower) {
 
 	    boolean hasAmmo = useAmmo(p);
 
@@ -105,14 +105,7 @@ public class Gun extends Weapon {
         }
 
         if(p.handAnimation != null) p.handAnimation.stop();
-        if(offHand)
-        {
-            p.playAttack2Animation(this, attackPower);
-        }
-        else {
-            p.playAttackAnimation(this, attackPower);
-        }
-
+        p.playAttackAnimation(this, attackPower);
 
         if(projectile != null) {
             doProjectileFire(p, lvl);
