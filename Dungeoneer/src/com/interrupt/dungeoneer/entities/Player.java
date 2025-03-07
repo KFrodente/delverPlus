@@ -912,10 +912,20 @@ public class Player extends Actor {
         // checks crouching
         if (crouchHeld && isOnFloor) {
             walkSpeed *= crouchSpeedMult;
-            eyeHeight = crouchEyeHeight;
+            //eyeHeight = crouchEyeHeight;
+            if(eyeHeight > crouchEyeHeight)
+            {
+                eyeHeight -= delta * 0.03f;
+                if(eyeHeight < crouchEyeHeight) eyeHeight = crouchEyeHeight;
+            }
         }
         else {
-            eyeHeight = standingEyeHeight;
+            //eyeHeight = standingEyeHeight;
+            if(eyeHeight < standingEyeHeight)
+            {
+                eyeHeight += delta * 0.03f;
+                if(eyeHeight > standingEyeHeight) eyeHeight = standingEyeHeight;
+            }
         }
 
         //refills stamina if no stamina using keys are pressed for a duration
