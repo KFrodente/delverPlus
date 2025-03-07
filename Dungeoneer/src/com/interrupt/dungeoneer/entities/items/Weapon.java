@@ -242,10 +242,10 @@ public class Weapon extends Item {
     }
 
 	// override this
-	public void doAttack(Player p, Level lvl, float attackPower) { }
+	public void doAttack(Player p, Level lvl, float attackPower, boolean offHand) { }
 
 	// and this
-	public void tickAttack(Player p, Level lvl, float time) { }
+	public void tickAttack(Player p, Level lvl, float time, boolean offHand) { }
 
 	@Override
 	public Array<ItemModification> getEnchantments() {
