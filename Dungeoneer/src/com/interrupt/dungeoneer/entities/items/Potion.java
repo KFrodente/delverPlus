@@ -245,4 +245,11 @@ public class Potion extends Item {
 		super.doPickup(player);
 		Drink(player);
 	}
+
+    @Override
+    public void AttackPressed(Player user)
+    {
+        Drink(user);
+        user.removeFromInventory(this);
+    }
 }

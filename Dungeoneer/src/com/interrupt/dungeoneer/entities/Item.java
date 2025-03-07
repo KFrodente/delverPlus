@@ -263,6 +263,11 @@ public class Item extends Entity {
 		pickup(player);
 	}
 
+    public void AttackPressed(Player user)
+    {
+
+    }
+
 	public boolean inventoryUse(Player player){
 		//Override this and set to true when item can be used in inventory
         return false;
