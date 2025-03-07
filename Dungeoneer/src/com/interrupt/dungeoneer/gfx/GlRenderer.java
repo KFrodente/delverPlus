@@ -181,7 +181,6 @@ public class GlRenderer {
 	protected Vector3 handMaxDirection = new Vector3();
 	protected Vector3 handMaxDirectionOffhand = new Vector3();
 	protected float handMaxLerpTime = 0f;
-	protected float offhandMaxLerpTime = 0f;
 
 	protected ShapeRenderer collisionLineRenderer = null;
 
@@ -2031,12 +2030,6 @@ public class GlRenderer {
 			texOffset = game.player.handAnimation.getTexOffset();
 		}
 
-        if(game.player.hand2Animation != null) {
-            rotation.set(game.player.hand2Animation.curRotation);
-            transform.set(game.player.hand2Animation.curTransform);
-            texOffset = game.player.hand2Animation.getTexOffset();
-        }
-
 		if(heldItem instanceof Bow) {
 			transform.add(0, -0.09f, 0);
 			rotation.add(0, 0, 0);
@@ -2076,23 +2069,6 @@ public class GlRenderer {
 			handMaxLerpTime += 0.1f * Gdx.graphics.getDeltaTime();
 			if(handMaxLerpTime > 1) handMaxLerpTime = 1f;
 		}
-
-        if(Game.instance.player.hand2AnimateTimer <= 0 && Game.instance.player.attack2Charge <= 0) {
-            offhandMaxLerpTime -= 2.5f * Gdx.graphics.getDeltaTime();
-            if(offhandMaxLerpTime < 0) offhandMaxLerpTime = 0;
-
-            // Give non-ranged items a max angle to look up
-            if(!(heldItem instanceof Bow || heldItem instanceof Wand || heldItem instanceof Gun || !Options.instance.handLagEnabled || Game.instance.player.handLagStrength <= 0f)) {
-                if (handMaxDirectionOffhand.y > 0.25f)
-                    handMaxDirectionOffhand.y = Interpolation.exp5.apply(0.25f, handMaxDirectionOffhand.y, offhandMaxLerpTime);
-            }
-
-            handMaxDirectionOffhand = handMaxDirectionOffhand.nor();
-        }
-        else {
-            offhandMaxLerpTime += 0.1f * Gdx.graphics.getDeltaTime();
-            if(offhandMaxLerpTime > 1) offhandMaxLerpTime = 1f;
-        }
 
         float handLagStrength = Game.instance.player.handLagStrength;
         if (!Options.instance.handLagEnabled) {
@@ -2232,17 +2208,10 @@ public class GlRenderer {
 		Vector3 rotation = heldRotation.set(0,0,0);
 		Vector3 transform = heldTransform.set(0,0,0);
 		int texOffset = 0;
-
         Vector3 offset = game.player.offhandOffset;
 
         if (heldItem instanceof Weapon) {
             Weapon weapon = (Weapon)heldItem;
-
-            if(weapon.twoHanded)
-            {
-                offset = new Vector3(game.player.offhandOffset.x + 0.25f, game.player.offhandOffset.y, game.player.offhandOffset.z);
-            }
-
             String animationName = weapon.attackAnimation;
             LerpedAnimation animation = Game.animationManager.getAnimation(animationName);
             if (animation != null) {
