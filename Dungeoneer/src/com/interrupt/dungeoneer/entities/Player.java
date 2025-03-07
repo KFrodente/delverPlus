@@ -1,7 +1,6 @@
 package com.interrupt.dungeoneer.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntArray;
 import com.interrupt.api.steam.SteamApi;
 import com.interrupt.dungeoneer.Audio;
 import com.interrupt.dungeoneer.GameInput;
@@ -21,10 +19,8 @@ import com.interrupt.dungeoneer.collision.Collision;
 import com.interrupt.dungeoneer.entities.items.*;
 import com.interrupt.dungeoneer.entities.items.Potion.PotionType;
 import com.interrupt.dungeoneer.entities.items.Weapon.DamageType;
-import com.interrupt.dungeoneer.entities.projectiles.BeamProjectile;
 import com.interrupt.dungeoneer.entities.triggers.ButtonModel;
 import com.interrupt.dungeoneer.entities.triggers.Trigger;
-import com.interrupt.dungeoneer.entities.triggers.Trigger.TriggerType;
 import com.interrupt.dungeoneer.game.*;
 import com.interrupt.dungeoneer.gfx.GlRenderer;
 import com.interrupt.dungeoneer.gfx.animation.lerp3d.LerpFrame;
@@ -40,9 +36,7 @@ import com.interrupt.dungeoneer.statuseffects.*;
 import com.interrupt.dungeoneer.tiles.ExitTile;
 import com.interrupt.dungeoneer.tiles.Tile;
 import com.interrupt.helpers.PlayerHistory;
-import com.interrupt.managers.HUDManager;
 import com.interrupt.managers.StringManager;
-import org.graalvm.compiler.replacements.Log;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -239,6 +233,10 @@ public class Player extends Actor {
 
     public boolean godMode = false;
 
+    private int ticksSinceLastStaminaUsage = 0;
+    private int ticksNeededBeforeStaminaRegen = 300;
+    private float staminaRegenPerTick = .1f;
+
     // Used to act on breaking changes between save versions
     public int saveVersion = -1;
 
@@ -246,6 +244,8 @@ public class Player extends Actor {
 		isSolid = true;
 		collision.set(0.2f,0.2f,0.65f);
 		dropSound = "drops/drop_soft.mp3";
+        maxStamina = 100;
+        stamina = maxStamina;
 		hidden = true;
 		mass = 2f;
 		canStepUpOn = false;
@@ -257,6 +257,9 @@ public class Player extends Actor {
 
 		maxHp = 8;
 		hp = maxHp;
+
+        maxStamina = 100;
+        stamina = maxStamina;
 
 		collision.set(0.2f,0.2f,0.65f);
 
@@ -845,9 +848,6 @@ public class Player extends Actor {
             sprintHeld = input.isSprintHeld();
         }
 
-        if (sprint) walkSpeed *= sprintBurstSpeedMult;
-        if (sprintHeld) walkSpeed *= sprintHeldSpeedMult;
-
 		// Update player visibility
 		Color lightColor = level.getLightColorAt(x, y, z, null, t_vislightColor);
 		visiblityMod = Math.max(Math.max(lightColor.r, lightColor.g), lightColor.b);
@@ -898,6 +898,15 @@ public class Player extends Actor {
 		if(right) walkVelVector.x -= 1;
 
 		walkVelVector = walkVelVector.nor();
+
+        //checks sprinting
+        if (sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
+        if (sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+
+        //refills stamina if no stamina using keys are pressed for a duration
+        ticksSinceLastStaminaUsage++;
+        if (ticksSinceLastStaminaUsage >= ticksNeededBeforeStaminaRegen && stamina < maxStamina) GainStamina(staminaRegenPerTick);
+
 
 		// walking backwards is slower
 		if(walkVelVector.y < 0) {
@@ -1260,48 +1269,15 @@ public class Player extends Actor {
 					attackCharge += attackChargeSpeed * delta;
 				}
 			}
-			else if(held instanceof Potion)
-			{
-				if(attack)
-				{
-					((Potion)held).Drink(this);
-					removeFromInventory(held);
-				}
-			}
-			else if(held instanceof Food)
-			{
-				if(attack)
-				{
-					((Food)held).Eat(this);
-					removeFromInventory(held);
-				}
-			}
-			else if(held instanceof Note) {
-				if (attack) {
-					((Note)held).Read(this);
-				}
-			}
-			else if(held instanceof Scroll) {
-				if (attack) {
-					((Scroll)held).Read(this);
-				}
-			}
-			else if(held instanceof BagUpgrade) {
-				if (attack) {
-					((BagUpgrade)held).inventoryUse(this);
-				}
-			}
-			else if(held instanceof Armor)
-			{
-				if(attack)
-				{
-					Armor a = (Armor)held;
-					ChangeHeldItem(null, true);
-					equip(a);
-				}
-			}
+            else // Not Automatic Weapon
+            {
+                if(attack)
+                {
+                    held.AttackPressed(this);
+                }
+            }
 		}
-
+// - end of item handling
         if(!isDead && !isInOverlay) {
             if(input.doUseAction() ||
                     controllerState.buttonEvents.contains(Action.USE, true)) Use(level);
@@ -1548,6 +1524,31 @@ public class Player extends Actor {
 			hit.use();
 		}
 	}
+
+    public boolean UseStamina(float amount)
+    {
+        ticksSinceLastStaminaUsage = 0;
+        if (stamina <= 0) {
+            stamina = 0;
+            return false;
+        }
+
+        stamina -= amount;
+
+        return true;
+    }
+
+    public void GainStamina(float amount)
+    {
+        stamina += amount;
+        if (stamina > maxStamina) stamina = maxStamina;
+    }
+
+    public void GainStaminaPercent(float amount)
+    {
+        stamina += maxStamina * amount;
+        if (stamina > maxStamina) stamina = maxStamina;
+    }
 
 	private void Use(Level level, int touchX, int touchY) {
 		// use the entity / wall hit by the camera ray
@@ -2226,6 +2227,9 @@ public class Player extends Actor {
 	public int getMaxHp() {
 		return maxHp + calculatedStats.HP;
 	}
+
+    @Override
+    public float getMaxStamina() { return maxStamina + calculatedStats.STM;}
 
 	public int GetArmorClass() {
 		return calculatedStats.DEF + getDefenseStatBoost();

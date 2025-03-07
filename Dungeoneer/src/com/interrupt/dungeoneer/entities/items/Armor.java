@@ -19,9 +19,9 @@ public class Armor extends Item {
 	private int currentDurability = 0;
 
 	public String set = null;
-	
+
 	public Armor() { equipLoc = "ARMOR"; isSolid = true; yOffset = -0.1f; equipSound = "/ui/ui_equip_armor.mp3"; }
-	
+
 	public Armor(int ac, String equipLoc, int tex)
 	{
 		armor = ac;
@@ -55,11 +55,11 @@ public class Armor extends Item {
 		// item scaling
         if(itemLevel > 1)
 		    mod += (itemLevel * 0.75f);
-		
+
 		if(this.itemCondition != null) mod += (this.itemCondition.ordinal()) - 2;
 		return Math.max(0, armor + mod);
 	}
-	
+
 	public boolean inventoryUse(Player player){
 		player.equip(this);
         return true;
@@ -86,9 +86,9 @@ public class Armor extends Item {
 		this.enchantment = null;
 		this.prefixEnchantment = null;
 	}
-	
+
 	public void equipEvent() {
-		
+
 	}
 
 	@Override
@@ -112,4 +112,11 @@ public class Armor extends Item {
 
 		return shader;
 	}
+
+    @Override
+    public void AttackPressed(Player user)
+    {
+        user.ChangeHeldItem(null, true);
+        user.equip(this);
+    }
 }

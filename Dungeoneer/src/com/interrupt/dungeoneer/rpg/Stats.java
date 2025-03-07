@@ -7,9 +7,9 @@ import com.interrupt.dungeoneer.entities.items.Armor;
 import com.interrupt.dungeoneer.entities.items.ItemModification;
 
 public class Stats {
-	
+
 	public Stats() { }
-	
+
 	public Stats(int ATK, int DEF, int DEX, int SPD, int MAG, int END) {
 		this.ATK = ATK;
 		this.DEF = DEF;
@@ -40,6 +40,8 @@ public class Stats {
 	/** Healthpoints stat. */
 	public int HP = 8;
 
+    public int STM = 100;
+
 	/** Attack speed modifier. */
 	public float attackSpeedMod = 0f;
 
@@ -56,11 +58,12 @@ public class Stats {
 	private transient int LAST_MAG;
 	private transient int LAST_END;
 	private transient int LAST_HP;
+	private transient int LAST_STM;
 
 	private transient float LAST_attackSpeedMod;
 	private transient float LAST_knockbackMod;
 	private transient float LAST_magicResistMod;
-	
+
 	public void ResetStats() {
 
 		LAST_ATK = ATK;
@@ -70,6 +73,7 @@ public class Stats {
 		LAST_MAG = MAG;
 		LAST_END = END;
 		LAST_HP = HP;
+        LAST_STM = STM;
 
 		LAST_attackSpeedMod = attackSpeedMod;
 		LAST_knockbackMod = knockbackMod;
@@ -82,16 +86,17 @@ public class Stats {
 		MAG = 0;
 		END = 0;
 		HP = 0;
+        STM = 0;
 
 		attackSpeedMod = 0;
 		knockbackMod = 0;
 		magicResistMod = 0;
 	}
-	
+
 	public void Recalculate(Player player) {
 		ResetStats();
 		boolean holdingTwoHanded = player.isHoldingTwoHanded();
-		
+
 		for(Item item : player.equippedItems.values()) {
 			// Offhand items should be skipped when the player is holding a two handed weapon
 			if(item == null) continue;
@@ -130,6 +135,6 @@ public class Stats {
 	}
 
 	public boolean statsChanged() {
-		return (ATK != LAST_ATK || DEF != LAST_DEF || DEX != LAST_DEX || SPD != LAST_SPD || MAG != LAST_MAG || END != LAST_END || HP != LAST_HP || attackSpeedMod != LAST_attackSpeedMod || knockbackMod != LAST_knockbackMod || magicResistMod != LAST_magicResistMod);
+		return (ATK != LAST_ATK || DEF != LAST_DEF || DEX != LAST_DEX || SPD != LAST_SPD || MAG != LAST_MAG || END != LAST_END || HP != LAST_HP || attackSpeedMod != LAST_attackSpeedMod || knockbackMod != LAST_knockbackMod || magicResistMod != LAST_magicResistMod || STM != LAST_STM);
 	}
 }

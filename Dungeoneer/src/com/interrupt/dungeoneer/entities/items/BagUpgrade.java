@@ -76,5 +76,12 @@ public class BagUpgrade extends Item {
         Game.hudManager.quickSlots.refresh();
 
         Audio.playSound("inventory/open_inventory.mp3", 0.9f);
+
+    }
+
+    @Override
+    public void AttackPressed(Player user)
+    {
+        inventoryUse(user);
     }
 }
