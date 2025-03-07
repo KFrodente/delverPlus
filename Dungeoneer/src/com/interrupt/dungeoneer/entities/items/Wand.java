@@ -30,7 +30,7 @@ public class Wand extends Weapon {
     /** Require charges to fire? */
 	@EditorProperty
 	public boolean usesCharges = true;
-	
+
 	private transient int lastComputedChargeValue = 0;
 	private transient String chargeText = "0";
 
@@ -47,6 +47,7 @@ public class Wand extends Weapon {
 	protected float magicStatBoostMod = 1f;
 
 	private float attackTimer = 0.0f;
+	private float attack2Timer = 0.0f;
 
 	private Entity fireEffect = null;
 	private transient Particle chargeEffect = null;
@@ -58,55 +59,92 @@ public class Wand extends Weapon {
 		super(x, y, 16, ItemType.wand, StringManager.get("items.Wand.defaultNameText"));
 		charges = 5;
 	}
-	
+
 	public Color getColor()
 	{
 		return Weapon.getEnchantmentColor(this.damageType);
 	}
-	
+
 	public String GetInfoText() {
 		if(usesCharges)
 			return MessageFormat.format(StringManager.get("items.Wand.infoText"), getChargeNumber(Game.instance.player)) + "\n" + super.GetInfoText();
 		else
 			return super.GetInfoText();
 	}
-	
+
 	@Override
-	public void doAttack(Player p, Level lvl, float attackPower) {
+	public void doAttack(Player p, Level lvl, float attackPower, boolean offHand) {
+        if(offHand)
+        {
+            if(autoFire) {
+                p.hand2AnimateTimer = autoFireTime * 3f;
+            }
+            else {
+                p.hand2AnimateTimer = (p.hand2Animation.length() / p.hand2Animation.speed) * 0.75f;
+            }
 
-		if(autoFire) {
-			p.handAnimateTimer = autoFireTime * 3f;
-		}
-		else {
-			p.handAnimateTimer = (p.handAnimation.length() / p.handAnimation.speed) * 0.75f;
-		}
+            attack2Timer = 1.0f;
 
-		attackTimer = 1.0f;
+            if(getChargeNumber(p) <= 0)
+            {
+                //Game.ShowMessage("NO CHARGES", 1f);
+                Audio.playSound("ui/ui_noammo_wand.mp3", 0.3f);
+                return;
+            }
+            charges--;
 
-		if(getChargeNumber(p) <= 0)
-		{
-			//Game.ShowMessage("NO CHARGES", 1f);
-			Audio.playSound("ui/ui_noammo_wand.mp3", 0.3f);
-			return;
-		}
-		charges--;
+            Vector3 direction = getCrosshairDirection(-0.3f);
+            if(direction == null) direction = Game.camera.direction;
 
-		Vector3 direction = getCrosshairDirection(-0.3f);
-		if(direction == null) direction = Game.camera.direction;
-		
-		spell.damageType = damageType;
-		spell.baseDamage = getBaseDamage();
-		spell.randDamage = getRandDamage();
-		spell.zap(p, direction.cpy(), new Vector3(x + direction.x * 0.15f, y + direction.z * 0.15f, z + direction.y * 0.15f));
-		
-		p.history.usedWand(this);
+            spell.damageType = damageType;
+            spell.baseDamage = getBaseDamage();
+            spell.randDamage = getRandDamage();
+            spell.zap(p, direction.cpy(), new Vector3(x + direction.x * 0.15f, y + direction.z * 0.15f, z + direction.y * 0.15f));
 
-		if(autoFire)
-			p.shake(0.2f);
-		else
-			p.shake(2f);
+            p.history.usedWand(this);
 
-        makeFireEffect(lvl);
+            if(autoFire)
+                p.shake(0.2f);
+            else
+                p.shake(2f);
+
+            makeFireEffect(lvl);
+        }
+        else {
+            if(autoFire) {
+                p.handAnimateTimer = autoFireTime * 3f;
+            }
+            else {
+                p.handAnimateTimer = (p.handAnimation.length() / p.handAnimation.speed) * 0.75f;
+            }
+
+            attackTimer = 1.0f;
+
+            if(getChargeNumber(p) <= 0)
+            {
+                //Game.ShowMessage("NO CHARGES", 1f);
+                Audio.playSound("ui/ui_noammo_wand.mp3", 0.3f);
+                return;
+            }
+            charges--;
+
+            Vector3 direction = getCrosshairDirection(-0.3f);
+            if(direction == null) direction = Game.camera.direction;
+
+            spell.damageType = damageType;
+            spell.baseDamage = getBaseDamage();
+            spell.randDamage = getRandDamage();
+            spell.zap(p, direction.cpy(), new Vector3(x + direction.x * 0.15f, y + direction.z * 0.15f, z + direction.y * 0.15f));
+
+            p.history.usedWand(this);
+
+            if(autoFire)
+                p.shake(0.2f);
+            else
+                p.shake(2f);
+
+            makeFireEffect(lvl);
+        }
 	}
 
 	public int getRandDamage() {
@@ -116,14 +154,14 @@ public class Wand extends Weapon {
 		}
 		return super.getRandDamage() + boost;
 	}
-	
+
 	public int getChargeNumber(Player p) {
 		if(!usesCharges)
 			return 1;
 
 		return charges + (int)(p.getMagicStatBoost() * magicStatBoostMod);
 	}
-	
+
 	public String getChargeText() {
 
 		if(!usesCharges)
@@ -166,60 +204,117 @@ public class Wand extends Weapon {
     }
 
     Color t_chargeColor = new Color();
-	public void tickEquipped(Player player, Level level, float delta, String equipLoc) {
+	public void tickEquipped(Player player, Level level, float delta, String equipLoc, boolean offHand) {
 		super.tickEquipped(player, level, delta, equipLoc);
 
 		float effectScale = 0.0f;
 
-		if(player.attackCharge > 0 && charges > 0f) {
-			effectScale = Interpolation.circleOut.apply(0f, 1.0f, Math.min(chargeTime * 2f, 1f)) * 0.2f;
-		}
-		if(attackTimer > 0) {
-			effectScale = Interpolation.circleOut.apply(0f, 0.35f, attackTimer);
-		}
+        if(offHand)
+        {
+            if(player.attack2Charge > 0 && charges > 0f) {
+                effectScale = Interpolation.circleOut.apply(0f, 1.0f, Math.min(chargeTime * 2f, 1f)) * 0.2f;
+            }
+            if(attack2Timer > 0) {
+                effectScale = Interpolation.circleOut.apply(0f, 0.35f, attack2Timer);
+            }
 
-		if(effectScale > 0) {
-			if(chargeEffect == null) {
-				t_chargeColor.set(spell.spellColor);
-				t_chargeColor.a = effectScale * 2f;
+            if(effectScale > 0) {
+                if(chargeEffect == null) {
+                    t_chargeColor.set(spell.spellColor);
+                    t_chargeColor.a = effectScale * 2f;
 
-				chargeEffect = CachePools.getParticle(x, y, z - 0.3f, 0, 0, 0, 52, t_chargeColor, true);
-				chargeEffect.persists = false;
-				chargeEffect.fullbrite = true;
-				chargeEffect.blendMode = BlendMode.ADD;
-				chargeEffect.haloMode = HaloMode.STENCIL_ONLY;
-				chargeEffect.lifetime = 10;
+                    chargeEffect = CachePools.getParticle(x, y, z - 0.3f, 0, 0, 0, 52, t_chargeColor, true);
+                    chargeEffect.persists = false;
+                    chargeEffect.fullbrite = true;
+                    chargeEffect.blendMode = BlendMode.ADD;
+                    chargeEffect.haloMode = HaloMode.STENCIL_ONLY;
+                    chargeEffect.lifetime = 10;
 
-				chargeEffect.setSpriteAtlas("fog_sprites");
-				chargeEffect.tex = 0;
+                    chargeEffect.setSpriteAtlas("fog_sprites");
+                    chargeEffect.tex = 0;
 
-				chargeTime = 0f;
-				level.addEntity(chargeEffect);
-			}
+                    chargeTime = 0f;
+                    level.addEntity(chargeEffect);
+                }
 
-			chargeEffect.x = x;
-			chargeEffect.y = y;
-			chargeEffect.z = z - 0.275f;
-			chargeEffect.lifetime = 5;
+                chargeEffect.x = x;
+                chargeEffect.y = y;
+                chargeEffect.z = z - 0.275f;
+                chargeEffect.lifetime = 5;
 
-			Vector3 cameraDir = GameManager.renderer.camera.direction;
-			chargeEffect.x += cameraDir.x * 0.035f;
-			chargeEffect.y += cameraDir.z * 0.035f;
-			chargeEffect.z += cameraDir.y * 0.035f;
+                Vector3 cameraDir = GameManager.renderer.camera.direction;
+                chargeEffect.x += cameraDir.x * 0.035f;
+                chargeEffect.y += cameraDir.z * 0.035f;
+                chargeEffect.z += cameraDir.y * 0.035f;
 
-			chargeEffect.scale = effectScale;
+                chargeEffect.scale = effectScale;
 
-			chargeEffect.z -= chargeEffect.scale * 0.15f;
+                chargeEffect.z -= chargeEffect.scale * 0.15f;
 
-			chargeTime += delta * 0.003f;
-		}
-		else if(chargeEffect != null) {
-			chargeEffect.isActive = false;
-			chargeEffect = null;
-		}
+                chargeTime += delta * 0.003f;
+            }
+            else if(chargeEffect != null) {
+                chargeEffect.isActive = false;
+                chargeEffect = null;
+            }
 
-		if(attackTimer > 0) {
-			attackTimer -= delta * 0.04f;
-		}
+            if(attack2Timer > 0) {
+                attack2Timer -= delta * 0.04f;
+            }
+        }
+        else {
+            if(player.attackCharge > 0 && charges > 0f) {
+                effectScale = Interpolation.circleOut.apply(0f, 1.0f, Math.min(chargeTime * 2f, 1f)) * 0.2f;
+            }
+            if(attackTimer > 0) {
+                effectScale = Interpolation.circleOut.apply(0f, 0.35f, attackTimer);
+            }
+
+            if(effectScale > 0) {
+                if(chargeEffect == null) {
+                    t_chargeColor.set(spell.spellColor);
+                    t_chargeColor.a = effectScale * 2f;
+
+                    chargeEffect = CachePools.getParticle(x, y, z - 0.3f, 0, 0, 0, 52, t_chargeColor, true);
+                    chargeEffect.persists = false;
+                    chargeEffect.fullbrite = true;
+                    chargeEffect.blendMode = BlendMode.ADD;
+                    chargeEffect.haloMode = HaloMode.STENCIL_ONLY;
+                    chargeEffect.lifetime = 10;
+
+                    chargeEffect.setSpriteAtlas("fog_sprites");
+                    chargeEffect.tex = 0;
+
+                    chargeTime = 0f;
+                    level.addEntity(chargeEffect);
+                }
+
+                chargeEffect.x = x;
+                chargeEffect.y = y;
+                chargeEffect.z = z - 0.275f;
+                chargeEffect.lifetime = 5;
+
+                Vector3 cameraDir = GameManager.renderer.camera.direction;
+                chargeEffect.x += cameraDir.x * 0.035f;
+                chargeEffect.y += cameraDir.z * 0.035f;
+                chargeEffect.z += cameraDir.y * 0.035f;
+
+                chargeEffect.scale = effectScale;
+
+                chargeEffect.z -= chargeEffect.scale * 0.15f;
+
+                chargeTime += delta * 0.003f;
+            }
+            else if(chargeEffect != null) {
+                chargeEffect.isActive = false;
+                chargeEffect = null;
+            }
+
+            if(attackTimer > 0) {
+                attackTimer -= delta * 0.04f;
+            }
+        }
+
+
 	}
 }
