@@ -892,8 +892,8 @@ public class Player extends Actor {
 		walkVelVector = walkVelVector.nor();
 
         //checks sprinting
-        if (sprint && isOnFloor && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
-        if (sprintHeld && isOnFloor && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+        if (sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
+        if (sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
 
         //refills stamina if no stamina using keys are pressed for a duration
         ticksSinceLastStaminaUsage++;
