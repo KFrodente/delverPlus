@@ -234,7 +234,7 @@ public class Player extends Actor {
     public boolean godMode = false;
 
     private int ticksSinceLastStaminaUsage = 0;
-    private int ticksNeededBeforeStaminaRegen = 400;
+    private int ticksNeededBeforeStaminaRegen = 300;
     private float staminaRegenPerTick = .1f;
 
     // Used to act on breaking changes between save versions
@@ -897,7 +897,7 @@ public class Player extends Actor {
 
         //refills stamina if no stamina using keys are pressed for a duration
         ticksSinceLastStaminaUsage++;
-        if (ticksSinceLastStaminaUsage >= ticksNeededBeforeStaminaRegen && stamina < maxStamina) GainStamina(.1f);
+        if (ticksSinceLastStaminaUsage >= ticksNeededBeforeStaminaRegen && stamina < maxStamina) GainStamina(staminaRegenPerTick);
 
 
 		// walking backwards is slower
