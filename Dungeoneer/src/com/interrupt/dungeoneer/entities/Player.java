@@ -57,8 +57,9 @@ public class Player extends Actor {
 
 	public float rot2 = 0;
 
-	/** Player jump height. */
+	/** Player jumping*/
 	public float jumpHeight = 0.05f;
+    public float jumpStaminaCost = 10f;
 
 	/** Player eye height. */
 	public float standingEyeHeight = 0.12f;
@@ -1095,13 +1096,21 @@ public class Player extends Actor {
 		yrot += rotya;
 		rotya *= 0.8;
 
-		if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
-			za += jumpHeight;
-		}
-        else if (jump && doubleJumpEquipped() && !isOnLadder)
+        if(stamina > jumpStaminaCost)
         {
-            if (canAirJump()) za += jumpHeight * 1.5f;
+            if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
+                za += jumpHeight;
+                UseStamina(jumpStaminaCost);
+            }
+            else if (jump && doubleJumpEquipped() && !isOnLadder)
+            {
+                if (canAirJump()) {
+                    za += jumpHeight * 1.5f;
+                    UseStamina(jumpStaminaCost);
+                }
+            }
         }
+
 
 		// touch movement
 		if(Game.isMobile && !isDead && !isInOverlay) {
