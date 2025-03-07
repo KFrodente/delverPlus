@@ -219,6 +219,7 @@ public class DelverGameMode extends GameModeAdapter {
             // ding!
             player.level++;
             player.hp = player.getMaxHp();
+            player.stamina = player.getMaxStamina();
 
             OverlayManager.instance.push(new LevelUpOverlay(player));
         }
