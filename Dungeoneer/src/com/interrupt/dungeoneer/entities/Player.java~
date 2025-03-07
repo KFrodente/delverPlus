@@ -701,8 +701,6 @@ public class Player extends Actor {
 		else {
 			drunkMod = 0;
 		}
-
-
 	}
 
 	private void runPushCheck(Level level, float delta, CollisionAxis collisionAxis) {
@@ -1287,14 +1285,6 @@ public class Player extends Actor {
 
         updatePlayerLight(level, delta);
         tickAttached(level, delta);
-
-
-        if(invincibilityTimer > 0) {
-            invincibilityTimer -= delta;
-            if(invincibilityTimer < 0) {
-                invincibilityTimer = 0;
-            }
-        }
     }
 
 	private void chargeDrop(float delta) {
@@ -2071,15 +2061,9 @@ public class Player extends Actor {
 		shake(((float)damage / (float)getMaxHp()) * 5f);
 	}
 
-    public boolean isInvincible() { return invincibilityTimer > 0f; }
-    public float invincibilityTimer = 0f;
-    public void gainInvincibility(float duration) {
-        invincibilityTimer = duration;
-    }
-
 	@Override
 	public int takeDamage(int damage, DamageType damageType, Entity instigator) {
-        if(!isDead && !godMode && !isInvincible()) {
+        if(!isDead && !godMode) {
 			int tookDamage = super.takeDamage(damage, damageType, instigator);
 
 			// Move game logic for this to the game mode
