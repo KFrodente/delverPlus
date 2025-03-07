@@ -175,8 +175,8 @@ public class GlRenderer {
 	protected int lastDrawnHp = 0;
 	protected int lastDrawnMaxHp = 0;
 
-    protected int lastDrawnStamina = 0;
-    protected int lastDrawnMaxStamina = 0;
+    protected float lastDrawnStamina = 0;
+    protected float lastDrawnMaxStamina = 0;
 
 	protected Vector2 cameraBob = new Vector2();
 	protected Vector3 forwardDirection = new Vector3();
@@ -1643,9 +1643,9 @@ public class GlRenderer {
 
         if (lastDrawnStamina != game.player.stamina || lastDrawnMaxStamina != game.player.getMaxStamina())
         {
-            staminaText = game.player.stamina + "/" + game.player.getMaxStamina();
-            lastDrawnStamina = game.player.stamina;
-            lastDrawnMaxStamina = game.player.getMaxStamina();
+            staminaText = (int)game.player.stamina + "/" + (int)game.player.getMaxStamina();
+            lastDrawnStamina = (float) Math.floor(game.player.stamina);
+            lastDrawnMaxStamina = (float) Math.floor(game.player.getMaxStamina());
         }
 
 		drawText(healthText, -camera2D.viewportWidth / 2f + healthSize * 5.5f - ((healthSize * 0.4f) * (healthText.length() - 1)), -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f, healthUiSize * 3.75f, game.player.hp > game.player.getMaxHp() / 5 ? Color.WHITE : Color.RED);

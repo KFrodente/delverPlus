@@ -43,10 +43,10 @@ public class Actor extends Entity {
 	public int maxHp = 1;
 
     @EditorProperty
-    public int stamina = 1;
+    public float stamina = 1;
 
     @EditorProperty
-    public int maxStamina = 1;
+    public float maxStamina = 1;
 	/** Current mana. */
 	@EditorProperty
 	public int mp = 0;
@@ -462,7 +462,7 @@ public class Actor extends Entity {
 		return maxHp;
 	}
 
-    public int getMaxStamina()
+    public float getMaxStamina()
     {
         return maxStamina;
     }

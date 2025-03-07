@@ -1,7 +1,6 @@
 package com.interrupt.dungeoneer.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntArray;
 import com.interrupt.api.steam.SteamApi;
 import com.interrupt.dungeoneer.Audio;
 import com.interrupt.dungeoneer.GameInput;
@@ -21,10 +19,8 @@ import com.interrupt.dungeoneer.collision.Collision;
 import com.interrupt.dungeoneer.entities.items.*;
 import com.interrupt.dungeoneer.entities.items.Potion.PotionType;
 import com.interrupt.dungeoneer.entities.items.Weapon.DamageType;
-import com.interrupt.dungeoneer.entities.projectiles.BeamProjectile;
 import com.interrupt.dungeoneer.entities.triggers.ButtonModel;
 import com.interrupt.dungeoneer.entities.triggers.Trigger;
-import com.interrupt.dungeoneer.entities.triggers.Trigger.TriggerType;
 import com.interrupt.dungeoneer.game.*;
 import com.interrupt.dungeoneer.gfx.GlRenderer;
 import com.interrupt.dungeoneer.gfx.animation.lerp3d.LerpFrame;
@@ -40,9 +36,7 @@ import com.interrupt.dungeoneer.statuseffects.*;
 import com.interrupt.dungeoneer.tiles.ExitTile;
 import com.interrupt.dungeoneer.tiles.Tile;
 import com.interrupt.helpers.PlayerHistory;
-import com.interrupt.managers.HUDManager;
 import com.interrupt.managers.StringManager;
-import org.graalvm.compiler.replacements.Log;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -842,9 +836,6 @@ public class Player extends Actor {
             sprintHeld = input.isSprintHeld();
         }
 
-        if (sprint) walkSpeed *= sprintBurstSpeedMult;
-        if (sprintHeld) walkSpeed *= sprintHeldSpeedMult;
-
 		// Update player visibility
 		Color lightColor = level.getLightColorAt(x, y, z, null, t_vislightColor);
 		visiblityMod = Math.max(Math.max(lightColor.r, lightColor.g), lightColor.b);
@@ -895,6 +886,10 @@ public class Player extends Actor {
 		if(right) walkVelVector.x -= 1;
 
 		walkVelVector = walkVelVector.nor();
+
+        //checks sprinting
+        if (sprint && isOnFloor && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
+        if (sprintHeld && isOnFloor && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
 
 		// walking backwards is slower
 		if(walkVelVector.y < 0) {
@@ -1521,6 +1516,15 @@ public class Player extends Actor {
 			hit.use();
 		}
 	}
+
+    public boolean UseStamina(float amount)
+    {
+        if (stamina <= 0) return false;
+
+        stamina -= amount;
+
+        return true;
+    }
 
 	private void Use(Level level, int touchX, int touchY) {
 		// use the entity / wall hit by the camera ray
@@ -2201,7 +2205,7 @@ public class Player extends Actor {
 	}
 
     @Override
-    public int getMaxStamina() { return maxStamina + calculatedStats.STM;}
+    public float getMaxStamina() { return maxStamina + calculatedStats.STM;}
 
 	public int GetArmorClass() {
 		return calculatedStats.DEF + getDefenseStatBoost();
