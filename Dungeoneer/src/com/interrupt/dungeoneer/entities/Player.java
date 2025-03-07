@@ -61,7 +61,9 @@ public class Player extends Actor {
 	public float jumpHeight = 0.05f;
 
 	/** Player eye height. */
-	public float eyeHeight = 0.12f;
+	public float standingEyeHeight = 0.12f;
+    public float crouchEyeHeight = -0.06f;
+    public float eyeHeight = standingEyeHeight;
 
 	/** Head bob speed. */
 	public float headBobSpeed = 0.319f;
@@ -119,6 +121,8 @@ public class Player extends Actor {
 
     private float sprintBurstSpeedMult = 15;
     private float sprintHeldSpeedMult = 1.75f;
+
+    private float crouchSpeedMult = 0.6f;
 
 	public boolean isHoldingOrb = false;
 
@@ -831,7 +835,7 @@ public class Player extends Actor {
 			else if(rot < 0) rot = rot % 6.28318531f;
 		}
 
-		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false;
+		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false, crouch = false, crouchHeld = false;
 
         if(!isDead && !isInOverlay) {
             up = input.isMoveForwardPressed();
@@ -846,6 +850,8 @@ public class Player extends Actor {
             jump = input.isJumpPressed();
             sprint = input.isSprintPressed();
             sprintHeld = input.isSprintHeld();
+            crouch = input.isCrouchPressed();
+            crouchHeld = input.isCrouchHeld();
         }
 
 		// Update player visibility
@@ -900,8 +906,17 @@ public class Player extends Actor {
 		walkVelVector = walkVelVector.nor();
 
         //checks sprinting
-        if (sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
-        if (sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+        if (!crouchHeld && sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
+        if (!crouchHeld && sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+
+        // checks crouching
+        if (crouchHeld && isOnFloor) {
+            walkSpeed *= crouchSpeedMult;
+            eyeHeight = crouchEyeHeight;
+        }
+        else {
+            eyeHeight = standingEyeHeight;
+        }
 
         //refills stamina if no stamina using keys are pressed for a duration
         ticksSinceLastStaminaUsage++;
