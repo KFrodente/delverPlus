@@ -66,6 +66,10 @@ public class Player extends Actor {
     public float crouchEyeHeight = -0.06f;
     public float eyeHeight = standingEyeHeight;
 
+    /** Sliding */
+    public float slideTime = 1f; // not in seconds
+    public float slideTimer = 0f;
+
 	/** Head bob speed. */
 	public float headBobSpeed = 0.319f;
 
@@ -239,7 +243,7 @@ public class Player extends Actor {
     public boolean godMode = false;
 
     private int ticksSinceLastStaminaUsage = 0;
-    private int ticksNeededBeforeStaminaRegen = 300;
+    private int ticksNeededBeforeStaminaRegen = 50;
     private float staminaRegenPerTick = .1f;
 
     // Used to act on breaking changes between save versions
@@ -575,7 +579,7 @@ public class Player extends Actor {
 
 		// headbob
 		headbob = (float)Math.sin(tickcount * headBobSpeed) * Math.min((Math.abs(xa) + Math.abs(ya)), (headBobHeight * 0.5f)) * headBobHeight;
-        if(floating) headbob = 0;
+        if(floating || slideTimer > 0) headbob = 0;
 
 		// water movement
 		inwater = false;
@@ -909,6 +913,25 @@ public class Player extends Actor {
         //checks sprinting
         if (!crouchHeld && sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
         if (!crouchHeld && sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+
+        // start and stop sliding
+        if(crouch && sprintHeld && isOnFloor  && (walkVelVector.x != 0 || walkVelVector.y != 0))
+        {
+            // start slide
+            walkSpeed *= sprintBurstSpeedMult * 2;
+            slideTimer = slideTime;
+        }
+        if(!crouchHeld || !isOnFloor)
+        {
+            slideTimer = 0; // stop sliding
+        }
+
+        // process sliding
+        if(slideTimer > 0)
+        {
+            walkSpeed += slideTimer;
+            slideTimer -= delta / 40;
+        }
 
         // checks crouching
         if (crouchHeld && isOnFloor) {
