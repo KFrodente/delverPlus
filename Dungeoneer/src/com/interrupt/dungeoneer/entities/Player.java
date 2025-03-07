@@ -1252,21 +1252,25 @@ public class Player extends Actor {
 					}
 				}
 				else if(attack && attackCharge < attackChargeTime) {
-					if(held instanceof Wand) {
-						Wand w = (Wand) held;
-						if (w.autoFire) {
-							if(handAnimation != null) handAnimation.stop();
-							Attack(level);
-						}
-						else {
-							if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
-						}
-					}
-					else {
-						if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
-					}
+                    if(stamina > 0)
+                    {
+                        if(held instanceof Wand) {
+                            Wand w = (Wand) held;
+                            if (w.autoFire) {
+                                if(handAnimation != null) handAnimation.stop();
+                                Attack(level);
+                            }
+                            else {
+                                if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
+                            }
+                        }
+                        else {
+                            if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
+                        }
 
-					attackCharge += attackChargeSpeed * delta;
+                        attackCharge += attackChargeSpeed * delta;
+
+                    }
 				}
 			}
             else // Not Automatic Weapon
@@ -1534,6 +1538,8 @@ public class Player extends Actor {
         }
 
         stamina -= amount;
+
+        if (stamina < 0) stamina = 0;
 
         return true;
     }
