@@ -11,3 +11,37 @@ java.lang.NullPointerException
 	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:167)
 	at com.interrupt.dungeoneer.DesktopStarter.main(DesktopStarter.java:59)
 
+Fatal error in Game loop!
+
+java.lang.NullPointerException
+	at com.interrupt.dungeoneer.entities.Player.tick(Player.java:1337)
+	at com.interrupt.dungeoneer.game.Game.tick(Game.java:505)
+	at com.interrupt.dungeoneer.GameManager.tick(GameManager.java:122)
+	at com.interrupt.dungeoneer.screens.GameScreen.render(GameScreen.java:73)
+	at com.badlogic.gdx.Game.render(Game.java:48)
+	at com.interrupt.dungeoneer.editor.EditorApplication.render(EditorApplication.java:569)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window.update(Lwjgl3Window.java:387)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.loop(Lwjgl3Application.java:193)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:167)
+	at com.interrupt.dungeoneer.editor.EditorApplication$2.<init>(EditorApplication.java:356)
+	at com.interrupt.dungeoneer.editor.EditorApplication.<init>(EditorApplication.java:356)
+	at com.interrupt.dungeoneer.editor.Editor.init(Editor.java:19)
+	at com.interrupt.dungeoneer.EditorStarter.main(EditorStarter.java:24)
+
+Fatal error in Game loop!
+
+java.lang.NullPointerException
+	at com.interrupt.dungeoneer.entities.Player.tick(Player.java:1337)
+	at com.interrupt.dungeoneer.game.Game.tick(Game.java:505)
+	at com.interrupt.dungeoneer.GameManager.tick(GameManager.java:122)
+	at com.interrupt.dungeoneer.screens.GameScreen.render(GameScreen.java:73)
+	at com.badlogic.gdx.Game.render(Game.java:48)
+	at com.interrupt.dungeoneer.editor.EditorApplication.render(EditorApplication.java:569)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window.update(Lwjgl3Window.java:387)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.loop(Lwjgl3Application.java:193)
+	at com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application.<init>(Lwjgl3Application.java:167)
+	at com.interrupt.dungeoneer.editor.EditorApplication$2.<init>(EditorApplication.java:356)
+	at com.interrupt.dungeoneer.editor.EditorApplication.<init>(EditorApplication.java:356)
+	at com.interrupt.dungeoneer.editor.Editor.init(Editor.java:19)
+	at com.interrupt.dungeoneer.EditorStarter.main(EditorStarter.java:24)
+

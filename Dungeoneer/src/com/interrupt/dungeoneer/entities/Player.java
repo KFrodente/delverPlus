@@ -1332,7 +1332,7 @@ public class Player extends Actor {
 			}
             else // Not Automatic Weapon
             {
-                if(attack)
+                if(attack && held != null)
                 {
                     held.AttackPressed(this);
                 }
