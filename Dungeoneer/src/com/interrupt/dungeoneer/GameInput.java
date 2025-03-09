@@ -344,6 +344,9 @@ public class GameInput implements InputProcessor {
 	public boolean isJumpPressed() { return isActionNewlyRequested(Action.JUMP); }
 	public boolean isSprintHeld() { return checkKeyDown(Action.SPRINT); }
 	public boolean isSprintPressed() { return isActionNewlyRequested(Action.SPRINT); }
+    public boolean isCrouchHeld() { return checkKeyDown(Action.CROUCH); }
+    public boolean isCrouchPressed() { return isActionNewlyRequested(Action.CROUCH); }
+
 
 	public boolean doUseAction() {
 		return isActionNewlyRequested(Action.USE);

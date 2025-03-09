@@ -57,11 +57,18 @@ public class Player extends Actor {
 
 	public float rot2 = 0;
 
-	/** Player jump height. */
+	/** Player jumping*/
 	public float jumpHeight = 0.05f;
+    public float jumpStaminaCost = 10f;
 
 	/** Player eye height. */
-	public float eyeHeight = 0.12f;
+	public float standingEyeHeight = 0.12f;
+    public float crouchEyeHeight = -0.06f;
+    public float eyeHeight = standingEyeHeight;
+
+    /** Sliding */
+    public float slideTime = 1f; // not in seconds
+    public float slideTimer = 0f;
 
 	/** Head bob speed. */
 	public float headBobSpeed = 0.319f;
@@ -119,6 +126,8 @@ public class Player extends Actor {
 
     private float sprintBurstSpeedMult = 15;
     private float sprintHeldSpeedMult = 1.75f;
+
+    private float crouchSpeedMult = 0.6f;
 
 	public boolean isHoldingOrb = false;
 
@@ -234,7 +243,7 @@ public class Player extends Actor {
     public boolean godMode = false;
 
     private int ticksSinceLastStaminaUsage = 0;
-    private int ticksNeededBeforeStaminaRegen = 300;
+    private int ticksNeededBeforeStaminaRegen = 50;
     private float staminaRegenPerTick = .1f;
 
     // Used to act on breaking changes between save versions
@@ -570,7 +579,7 @@ public class Player extends Actor {
 
 		// headbob
 		headbob = (float)Math.sin(tickcount * headBobSpeed) * Math.min((Math.abs(xa) + Math.abs(ya)), (headBobHeight * 0.5f)) * headBobHeight;
-        if(floating) headbob = 0;
+        if(floating || slideTimer > 0) headbob = 0;
 
 		// water movement
 		inwater = false;
@@ -833,7 +842,7 @@ public class Player extends Actor {
 			else if(rot < 0) rot = rot % 6.28318531f;
 		}
 
-		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false;
+		boolean up = false, down = false, left = false, right = false, turnLeft = false, turnRight = false, turnUp = false, turnDown = false, attack = false, jump = false, sprint = false, sprintHeld = false, crouch = false, crouchHeld = false;
 
         if(!isDead && !isInOverlay) {
             up = input.isMoveForwardPressed();
@@ -848,6 +857,8 @@ public class Player extends Actor {
             jump = input.isJumpPressed();
             sprint = input.isSprintPressed();
             sprintHeld = input.isSprintHeld();
+            crouch = input.isCrouchPressed();
+            crouchHeld = input.isCrouchHeld();
         }
 
 		// Update player visibility
@@ -902,8 +913,46 @@ public class Player extends Actor {
 		walkVelVector = walkVelVector.nor();
 
         //checks sprinting
-        if (sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
-        if (sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+        if (!crouchHeld && sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
+        if (!crouchHeld && sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+
+        // start and stop sliding
+        if(crouch && sprintHeld && isOnFloor  && (walkVelVector.x != 0 || walkVelVector.y != 0))
+        {
+            // start slide
+            walkSpeed *= sprintBurstSpeedMult * 2;
+            slideTimer = slideTime;
+        }
+        if(!crouchHeld || !isOnFloor)
+        {
+            slideTimer = 0; // stop sliding
+        }
+
+        // process sliding
+        if(slideTimer > 0)
+        {
+            walkSpeed += slideTimer;
+            slideTimer -= delta / 40;
+        }
+
+        // checks crouching
+        if (crouchHeld && isOnFloor) {
+            walkSpeed *= crouchSpeedMult;
+            //eyeHeight = crouchEyeHeight;
+            if(eyeHeight > crouchEyeHeight)
+            {
+                eyeHeight -= delta * 0.03f;
+                if(eyeHeight < crouchEyeHeight) eyeHeight = crouchEyeHeight;
+            }
+        }
+        else {
+            //eyeHeight = standingEyeHeight;
+            if(eyeHeight < standingEyeHeight)
+            {
+                eyeHeight += delta * 0.03f;
+                if(eyeHeight > standingEyeHeight) eyeHeight = standingEyeHeight;
+            }
+        }
 
         //refills stamina if no stamina using keys are pressed for a duration
         ticksSinceLastStaminaUsage++;
@@ -1072,13 +1121,21 @@ public class Player extends Actor {
 		yrot += rotya;
 		rotya *= 0.8;
 
-		if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
-			za += jumpHeight;
-		}
-        else if (jump && doubleJumpEquipped() && !isOnLadder)
+        if(stamina > jumpStaminaCost)
         {
-            if (canAirJump()) za += jumpHeight * 1.5f;
+            if(jump && (isOnFloor || isOnEntity) && !isOnLadder) {
+                za += jumpHeight;
+                UseStamina(jumpStaminaCost);
+            }
+            else if (jump && doubleJumpEquipped() && !isOnLadder)
+            {
+                if (canAirJump()) {
+                    za += jumpHeight * 1.5f;
+                    UseStamina(jumpStaminaCost);
+                }
+            }
         }
+
 
 		// touch movement
 		if(Game.isMobile && !isDead && !isInOverlay) {
@@ -1254,26 +1311,30 @@ public class Player extends Actor {
 					}
 				}
 				else if(attack && attackCharge < attackChargeTime) {
-					if(held instanceof Wand) {
-						Wand w = (Wand) held;
-						if (w.autoFire) {
-							if(handAnimation != null) handAnimation.stop();
-							Attack(level);
-						}
-						else {
-							if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
-						}
-					}
-					else {
-						if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
-					}
+                    if(stamina > 0)
+                    {
+                        if(held instanceof Wand) {
+                            Wand w = (Wand) held;
+                            if (w.autoFire) {
+                                if(handAnimation != null) handAnimation.stop();
+                                Attack(level);
+                            }
+                            else {
+                                if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
+                            }
+                        }
+                        else {
+                            if(attackCharge <= 0) playChargeAnimation(attackChargeSpeed);
+                        }
 
-					attackCharge += attackChargeSpeed * delta;
+                        attackCharge += attackChargeSpeed * delta;
+
+                    }
 				}
 			}
             else // Not Automatic Weapon
             {
-                if(attack)
+                if(attack && held != null)
                 {
                     held.AttackPressed(this);
                 }
@@ -1544,6 +1605,8 @@ public class Player extends Actor {
         }
 
         stamina -= amount;
+
+        if (stamina < 0) stamina = 0;
 
         return true;
     }

@@ -88,7 +88,7 @@
                 "heldTex": 1,
                 "spriteAtlas": "item-guns",
                 "name": "Handgun",
-                "attackAnimation": "gunFire",
+                "attackAnimation": "gunReload",
                 "attackStrongAnimation": "gunFire",
                 "automatic": false,
                 "projectileNum": 1,
