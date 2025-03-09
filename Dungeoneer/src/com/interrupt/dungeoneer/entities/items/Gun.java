@@ -28,7 +28,13 @@ public class Gun extends Weapon {
 	@EditorProperty
 	public float cycleTime = 6f;
 
+    /** Time between reloading and shooting in milliseconds. */
+    @EditorProperty
+    public float reloadTime = 35f;
+
 	private float cycleTimer = 0f;
+
+    private float reloadTimer = 0f;
 
 	private boolean canFire = true;
 
@@ -39,6 +45,14 @@ public class Gun extends Weapon {
 	/** Ammo consumed per shot. */
     @EditorProperty
     public int ammoPerShot = 1;
+
+    /** Ammo capacity that can be loaded. */
+    @EditorProperty
+    public int ammoCapacity = 12;
+
+    /** Ammo loaded currently. */
+    @EditorProperty
+    public int ammoLoaded = 0;
 
     /** Sound to play when attempting to fire with no ammo. */
 	@EditorProperty(group = "Gun Sounds")
@@ -346,10 +360,17 @@ public class Gun extends Weapon {
             Item check = player.inventory.get(i);
             if(check instanceof ItemStack) {
                 ItemStack stack = (ItemStack)check;
-                if(stack.stackType.equals(ammoType) && stack.count >= (Math.max(Math.abs(this.ammoPerShot), 1))) {
-                    stack.count -= Math.max(Math.abs(this.ammoPerShot), 1);
-                    if(stack.count == 0) player.removeFromInventory(stack);
+
+                if (ammoLoaded > 0 && reloadTimer <= 0) { // Shoot!
+                    ammoLoaded -= ammoPerShot;
                     return true;
+                }
+                else if(stack.stackType.equals(ammoType) && reloadTimer <= 0 && stack.count >= (Math.max(Math.abs(this.ammoPerShot), 1))) { // Reload!
+                    stack.count -= Math.max(Math.abs(this.ammoCapacity), 1);
+                    ammoLoaded = ammoCapacity;
+                    reloadTimer = reloadTime;
+                    if(stack.count == 0) player.removeFromInventory(stack);
+                    return false;
                 }
             }
         }
@@ -365,6 +386,7 @@ public class Gun extends Weapon {
         }
 
         if(cycleTimer > 0) cycleTimer -= delta;
+        if(reloadTimer > 0) reloadTimer -= delta;
     }
 
     public void resetTrigger() {
