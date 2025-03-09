@@ -12,5 +12,12 @@
         "scale": 0.5,
         "name": "double-jump-boots",
         "y_offset": 0.1
-    }
+    },
+     {
+         "columns": 1,
+         "filename": "shield.png",
+         "scale": 0.5,
+         "name": "shield",
+         "y_offset": 0.1
+     }
 ]

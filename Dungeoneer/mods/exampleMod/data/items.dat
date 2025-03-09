@@ -21,7 +21,19 @@
 				attackStrongAnimation:"maceStrongAttack",
 				chargeAnimation:"daggerCharge",
 				dropSound:"drops/drop_metal_01.mp3,drops/drop_metal_02.mp3,drops/drop_metal_03.mp3"
-			}
+			},
+			{
+                class:com.interrupt.dungeoneer.entities.items.Shield,
+                itemType:shield,
+                spriteAtlas:"shield",
+                tex:0,
+                heldTex:0,
+                inventoryTex:0,
+                name:"Basic-Shield",
+                cost:5,
+                pickupSound:"pu_metal.mp3",
+                dropSound:"drops/drop_metal_01.mp3,drops/drop_metal_02.mp3,drops/drop_metal_03.mp3"
+            }
 		]
 	},
 	"armor": {
