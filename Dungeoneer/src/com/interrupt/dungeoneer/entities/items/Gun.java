@@ -36,6 +36,8 @@ public class Gun extends Weapon {
 
     private float reloadTimer = 0f;
 
+    private boolean reloadAnimationPlayed = false;
+
 	private boolean canFire = true;
 
 	/** Ammo type. Must correspond to a ItemStack stackType. */
@@ -115,8 +117,13 @@ public class Gun extends Weapon {
 
 	    if(!hasAmmo) {
             Audio.playSound(outOfAmmoSound, 1f);
+            if (reloadTimer > 0 && !reloadAnimationPlayed) {
+                reloadAnimationPlayed = true;
+                p.playAttackAnimation(this, 0);
+            }
             return;
         }
+        else reloadAnimationPlayed = false;
 
         if(p.handAnimation != null) p.handAnimation.stop();
         p.playAttackAnimation(this, attackPower);
@@ -360,12 +367,13 @@ public class Gun extends Weapon {
             Item check = player.inventory.get(i);
             if(check instanceof ItemStack) {
                 ItemStack stack = (ItemStack)check;
-
-                if (ammoLoaded > 0 && reloadTimer <= 0) { // Shoot!
+                // Shoot!
+                if (ammoLoaded > 0 && reloadTimer <= 0) {
                     ammoLoaded -= ammoPerShot;
                     return true;
                 }
-                else if(stack.stackType.equals(ammoType) && reloadTimer <= 0 && stack.count >= (Math.max(Math.abs(this.ammoPerShot), 1))) { // Reload!
+                // Reload!
+                else if(stack.stackType.equals(ammoType) && reloadTimer <= 0 && stack.count >= (Math.max(Math.abs(this.ammoPerShot), 1))) {
                     stack.count -= Math.max(Math.abs(this.ammoCapacity), 1);
                     ammoLoaded = ammoCapacity;
                     reloadTimer = reloadTime;

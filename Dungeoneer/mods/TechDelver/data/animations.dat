@@ -568,7 +568,6 @@
         "gunFire": {
             "class": "com.interrupt.dungeoneer.gfx.animation.lerp3d.LerpedAnimation",
             "actionTime": 10,
-            "endTexOffset": 1,
             "frames": [
                 {
                     "transform": { "x": 0.12, "y": -0.20, "z": 0.4000 },
@@ -584,6 +583,28 @@
                     "transform": { "x": 0.12, "y": -0.20, "z": 0.4000 },
                     "rotation": { "x": 0.0, "y": 80.0, "z": 0.0 },
                     "length": 0
+                }
+            ]
+        },
+        "gunReload": {
+            "class": "com.interrupt.dungeoneer.gfx.animation.lerp3d.LerpedAnimation",
+            "startTexOffset": 0,
+            "endTexOffset": 0,
+            "frames": [
+                {
+                    "transform": { "x": 0.12, "y": -0.20, "z": 0.4000 },
+                    "rotation": { "x": 0.0, "y": 80.0, "z": 0.0 },
+                    "length": 1.6
+                },
+                {
+                    "transform": { "x": 0.12, "y": -1, "z": 0.4000 },
+                    "rotation": { "x": 0.0, "y": 80.0, "z": 0.0 },
+                    "length": 1.6
+                },
+                {
+                    "transform": { "x": 0.12, "y": -0.20, "z": 0.4000 },
+                    "rotation": { "x": 0.0, "y": 80.0, "z": 0.0 },
+                    "length": 20
                 }
             ]
         },
