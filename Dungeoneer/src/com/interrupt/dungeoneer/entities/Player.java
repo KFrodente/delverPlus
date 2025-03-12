@@ -244,7 +244,7 @@ public class Player extends Actor {
 
     private int ticksSinceLastStaminaUsage = 0;
     private int ticksNeededBeforeStaminaRegen = 50;
-    private float staminaRegenPerTick = .1f;
+    private float staminaRegenPerTick = 1f;
 
     // Used to act on breaking changes between save versions
     public int saveVersion = -1;
@@ -254,6 +254,7 @@ public class Player extends Actor {
 		collision.set(0.2f,0.2f,0.65f);
 		dropSound = "drops/drop_soft.mp3";
         maxStamina = 100;
+        maxHp = 100;
         stamina = maxStamina;
 		hidden = true;
 		mass = 2f;
@@ -264,7 +265,7 @@ public class Player extends Actor {
 		z = 0;
 		rot = (float)Math.PI * -0.5f;
 
-		maxHp = 8;
+		maxHp = 100;
 		hp = maxHp;
 
         maxStamina = 100;
@@ -914,7 +915,7 @@ public class Player extends Actor {
 
         //checks sprinting
         if (!crouchHeld && sprint && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(15)) walkSpeed *= sprintBurstSpeedMult;
-        if (!crouchHeld && sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.05f)) walkSpeed *= sprintHeldSpeedMult;
+        if (!crouchHeld && sprintHeld && isOnFloor && (walkVelVector.x != 0 || walkVelVector.y != 0) && UseStamina(.1f)) walkSpeed *= sprintHeldSpeedMult;
 
         // start and stop sliding
         if(crouch && sprintHeld && isOnFloor  && (walkVelVector.x != 0 || walkVelVector.y != 0))
@@ -939,6 +940,7 @@ public class Player extends Actor {
         if (crouchHeld && isOnFloor) {
             walkSpeed *= crouchSpeedMult;
             //eyeHeight = crouchEyeHeight;
+            collision.z = .35f;
             if(eyeHeight > crouchEyeHeight)
             {
                 eyeHeight -= delta * 0.03f;
@@ -947,6 +949,8 @@ public class Player extends Actor {
         }
         else {
             //eyeHeight = standingEyeHeight;
+            collision.z = .65f;
+
             if(eyeHeight < standingEyeHeight)
             {
                 eyeHeight += delta * 0.03f;

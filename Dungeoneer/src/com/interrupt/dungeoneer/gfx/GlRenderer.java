@@ -1620,19 +1620,36 @@ public class GlRenderer {
 
 		float barHeight = 8f * healthUiSize;
 
+        //Health bar
 		uiBatch.setColor(!isPoisoned ? Color.RED : Color.GREEN);
-		uiBatch.draw(fontAtlas.getSprite(55), (-camera2D.viewportWidth / 2 + padX * 1.75f), -camera2D.viewportHeight / 2 + padY + barHeight - 4 * healthUiSize, Math.max(0f, (healthBarWidth - padX) * game.player.hp / game.player.getMaxHp()), barHeight);
+		uiBatch.draw(fontAtlas.getSprite(55)
+            , (-camera2D.viewportWidth / 2 + padX * 1.75f)
+            , -camera2D.viewportHeight / 2 + padY + barHeight - 4 * healthUiSize
+            , Math.max(0f, (healthBarWidth - padX) * game.player.hp / game.player.getMaxHp())
+            , barHeight);
 
+        //Stamina bar
         uiBatch.setColor(Color.YELLOW);
-        uiBatch.draw(fontAtlas.getSprite(55), (-camera2D.viewportWidth / 2 + padX * 1.75f) + healthBarWidth + 25, -camera2D.viewportHeight / 2 + padY + barHeight - 4 * staminaUiSize, Math.max(0f, (staminaBarWidth - padX) * game.player.stamina / game.player.getMaxStamina()), barHeight);
+        uiBatch.draw(fontAtlas.getSprite(55)
+            , (-camera2D.viewportWidth / 2 + padX * 1.75f) + healthBarWidth + 25
+            , -camera2D.viewportHeight / 2 + padY + barHeight - 4 * staminaUiSize
+            , Math.max(0f, (staminaBarWidth - padX) * game.player.stamina / game.player.getMaxStamina())
+            , barHeight);
 
-        // health bar!
+        // health bar border
 		uiBatch.setColor(Color.WHITE);
-		uiBatch.draw(healthBarTextureRegion, -camera2D.viewportWidth / 2 + padX, -camera2D.viewportHeight / 2 + padY, healthBarWidth, healthBarHeight);
+		uiBatch.draw(healthBarTextureRegion
+            , -camera2D.viewportWidth / 2 + padX
+            , -camera2D.viewportHeight / 2 + padY
+            , healthBarWidth, healthBarHeight);
 
-        // stamina bar!
+        // stamina bar border
         uiBatch.setColor(Color.WHITE);
-        uiBatch.draw(healthBarTextureRegion, -camera2D.viewportWidth / 2 + (stamPadX), -camera2D.viewportHeight / 2 + padY, staminaBarWidth, staminaBarHeight);
+        uiBatch.draw(healthBarTextureRegion
+            , -camera2D.viewportWidth / 2 + (stamPadX)
+            , -camera2D.viewportHeight / 2 + padY
+            , staminaBarWidth
+            , staminaBarHeight);
 
 		// only update the health string when needed
 		if(lastDrawnHp != game.player.hp || lastDrawnMaxHp != game.player.getMaxHp()) {
@@ -1648,9 +1665,17 @@ public class GlRenderer {
             lastDrawnMaxStamina = (float) Math.floor(game.player.getMaxStamina());
         }
 
-		drawText(healthText, -camera2D.viewportWidth / 2f + healthSize * 5.5f - ((healthSize * 0.4f) * (healthText.length() - 1)), -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f, healthUiSize * 3.75f, game.player.hp > game.player.getMaxHp() / 5 ? Color.WHITE : Color.RED);
+		drawText(healthText
+            , -camera2D.viewportWidth / 2f + healthSize * 5.5f - ((healthSize * 0.4f) * (healthText.length() - 1))
+            , -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f
+            , healthUiSize * 3.75f
+            , game.player.hp > game.player.getMaxHp() / 5 ? Color.WHITE : Color.RED);
 
-        drawText(staminaText, -camera2D.viewportWidth / 2f + staminaSize * 5.5f - ((staminaSize * 0.4f) * (staminaText.length() - 1)) + (stamPadX * .9f), -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f, staminaUiSize * 3.75f, game.player.stamina > game.player.getMaxStamina() / 5 ? Color.WHITE : Color.RED);
+        drawText(staminaText
+            , -camera2D.viewportWidth / 2f + staminaSize * 5.5f - ((staminaSize * 0.4f) * (staminaText.length() - 1)) + (stamPadX * .9f)
+            , -camera2D.viewportHeight / 2f + padY + barHeight * 0.6f
+            , staminaUiSize * 3.75f
+            , game.player.stamina > game.player.getMaxStamina() / 5 ? Color.WHITE : Color.RED);
 
 		if(keystr != null && keystr.length() > 0) {
 			drawText(keystr, -camera2D.viewportWidth / 2 + healthSize / 2, -camera2D.viewportHeight / 2 + healthSize * 1.8f, healthSize, Color.WHITE);

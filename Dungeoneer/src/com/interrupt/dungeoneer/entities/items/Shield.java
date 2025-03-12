@@ -30,7 +30,7 @@ public class Shield extends Item {
     public String chargeAnimation = null;
 
     @EditorProperty
-    private float blockTime = 0.5f;
+    private float blockTime = 1.5f;
 
     @Override
     public void AttackPressed(Player user)
